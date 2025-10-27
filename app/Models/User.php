@@ -21,6 +21,14 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'authorization_number',
+        'profile_completed',
+        'latitude',
+        'longitude',
+        'address',
+        'city',
+        'postal_code',
     ];
 
     /**
@@ -40,5 +48,40 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'profile_completed' => 'boolean',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
+
+    /**
+     * Relation avec les pharmacies (pour les pharmaciens)
+     */
+    public function pharmacies()
+    {
+        return $this->hasMany(Pharmacy::class, 'pharmacist_id');
+    }
+
+    /**
+     * Vérifier si l'utilisateur est un pharmacien
+     */
+    public function isPharmacist()
+    {
+        return $this->role === 'pharmacist';
+    }
+
+    /**
+     * Vérifier si l'utilisateur est un utilisateur normal
+     */
+    public function isUser()
+    {
+        return $this->role === 'user';
+    }
+
+    /**
+     * Vérifier si l'utilisateur est un administrateur
+     */
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
 }

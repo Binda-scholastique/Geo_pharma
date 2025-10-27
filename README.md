@@ -1,64 +1,196 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# GeoPharma - Application de Géolocalisation de Pharmacies
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Description
 
-## About Laravel
+GeoPharma est une application web moderne développée avec Laravel qui permet aux utilisateurs de trouver facilement les pharmacies à proximité grâce à la géolocalisation. L'application offre également un système de gestion pour les pharmaciens qui peuvent ajouter et gérer leurs pharmacies.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fonctionnalités
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Pour les Utilisateurs
+- 🔍 **Recherche par géolocalisation** : Trouvez les pharmacies les plus proches de votre position
+- 🗺️ **Carte interactive** : Visualisez les pharmacies sur une carte avec Leaflet
+- 📱 **Contact WhatsApp** : Contactez directement les pharmacies via WhatsApp
+- 🔐 **Inscription optionnelle** : Créez un compte pour accéder aux détails complets des pharmacies
+- 📍 **Recherche par ville** : Recherchez des pharmacies dans une ville spécifique
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Pour les Pharmaciens
+- 👨‍⚕️ **Inscription sécurisée** : Création de compte avec vérification du numéro d'autorisation
+- 🏥 **Gestion des pharmacies** : Ajoutez et gérez vos pharmacies
+- 📊 **Dashboard complet** : Suivez vos pharmacies et leurs statuts
+- ✅ **Vérification automatique** : Système de vérification des numéros d'autorisation
+- 📝 **Profil complet** : Complétez vos informations pour activer toutes les fonctionnalités
 
-## Learning Laravel
+## Technologies Utilisées
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Backend** : Laravel 8.x
+- **Frontend** : Blade Templates + Tailwind CSS
+- **Base de données** : MySQL/SQLite
+- **Cartes** : Leaflet.js
+- **Icônes** : Font Awesome
+- **Géolocalisation** : API HTML5 Geolocation
+- **Authentification** : Laravel UI
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Installation
 
-## Laravel Sponsors
+### Prérequis
+- PHP 7.4 ou supérieur
+- Composer
+- Node.js et NPM
+- MySQL ou SQLite
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### Étapes d'installation
 
-### Premium Partners
+1. **Cloner le projet**
+```bash
+git clone [url-du-repo]
+cd Geo_pharma
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+2. **Installer les dépendances PHP**
+```bash
+composer install
+```
 
-## Contributing
+3. **Installer les dépendances JavaScript**
+```bash
+npm install && npm run dev
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+4. **Configuration de l'environnement**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-## Code of Conduct
+5. **Configuration de la base de données**
+Modifiez le fichier `.env` pour configurer votre base de données :
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=geo_pharma
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+6. **Exécuter les migrations**
+```bash
+php artisan migrate
+```
 
-## Security Vulnerabilities
+7. **Ajouter des données de test (optionnel)**
+```bash
+php artisan db:seed
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+8. **Démarrer le serveur**
+```bash
+php artisan serve
+```
 
-## License
+L'application sera accessible à l'adresse `http://localhost:8000`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Structure du Projet
+
+```
+Geo_pharma/
+├── app/
+│   ├── Http/Controllers/
+│   │   ├── Auth/RegisterController.php
+│   │   ├── PharmacyController.php
+│   │   ├── PharmacistController.php
+│   │   └── Api/PharmacyApiController.php
+│   ├── Models/
+│   │   ├── User.php
+│   │   ├── Pharmacy.php
+│   │   └── AuthorizationNumber.php
+│   └── Services/
+│       └── AuthorizationService.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── resources/
+│   └── views/
+│       ├── layouts/
+│       ├── pharmacies/
+│       ├── pharmacist/
+│       └── auth/
+└── routes/
+    ├── web.php
+    └── api.php
+```
+
+## API Endpoints
+
+### Pharmacies
+- `GET /api/pharmacies` - Liste toutes les pharmacies
+- `GET /api/pharmacies/map` - Pharmacies pour l'affichage sur carte
+- `POST /api/pharmacies/nearby` - Recherche par proximité
+- `POST /api/pharmacies/search-by-city` - Recherche par ville
+- `POST /api/pharmacies/search` - Recherche avancée
+- `GET /api/pharmacies/{id}` - Détails d'une pharmacie
+
+## Comptes de Test
+
+Après avoir exécuté les seeders, vous pouvez utiliser ces comptes :
+
+### Utilisateur
+- **Email** : jean.dupont@example.com
+- **Mot de passe** : password
+
+### Pharmacien
+- **Email** : marie.martin@pharmacie.fr
+- **Mot de passe** : password
+- **Numéro d'autorisation** : PH123456789
+
+## Fonctionnalités Avancées
+
+### Système d'Autorisation
+- Vérification des numéros d'autorisation via API externe
+- Simulation d'API pour le développement (numéros commençant par "PH")
+- Gestion des autorisations expirées
+
+### Géolocalisation
+- Calcul de distance en temps réel
+- Recherche par rayon personnalisable
+- Géocodage automatique des adresses
+
+### Interface Moderne
+- Design responsive avec Tailwind CSS
+- Animations et transitions fluides
+- Interface intuitive et accessible
+
+## Développement
+
+### Ajout de Nouvelles Fonctionnalités
+1. Créer les migrations nécessaires
+2. Développer les modèles et relations
+3. Implémenter les contrôleurs
+4. Créer les vues Blade
+5. Ajouter les routes
+6. Tester les fonctionnalités
+
+### Personnalisation
+- Modifiez les styles dans `resources/views/layouts/app.blade.php`
+- Ajoutez de nouveaux services dans `app/Services/`
+- Étendez les modèles selon vos besoins
+
+## Contribution
+
+1. Fork le projet
+2. Créez une branche pour votre fonctionnalité
+3. Committez vos changements
+4. Poussez vers la branche
+5. Ouvrez une Pull Request
+
+## Licence
+
+Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+## Support
+
+Pour toute question ou problème, veuillez ouvrir une issue sur GitHub.
+
+---
+
+**Développé avec ❤️ en Laravel**
