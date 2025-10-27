@@ -193,4 +193,4 @@ Pour toute question ou problème, veuillez ouvrir une issue sur GitHub.
 
 ---
 
-**Développé avec ❤️ en Laravel**
+**Développé par Scholastique Binda, Joviette Kandolo et Jedidia Umba**
