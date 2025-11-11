@@ -15,7 +15,7 @@ class AddRoleToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Ajouter le champ role pour distinguer les utilisateurs et pharmaciens
-            $table->enum('role', ['user', 'pharmacist', 'admin'])->default('user')->after('email');
+            $table->enum('role', ['user', 'pharmacist', 'admin'])->after('email');
             // Ajouter le numéro d'autorisation pour les pharmaciens
             $table->string('authorization_number')->nullable()->after('role');
             // Ajouter le statut de vérification du profil
