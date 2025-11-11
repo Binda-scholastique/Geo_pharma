@@ -214,7 +214,7 @@
                                     <i class="fas fa-check me-1"></i>Oui
                                 </span>
                             @else
-                                <span class="badge bg-warning">
+                                <span class="badge bg-warning text-dark">
                                     <i class="fas fa-exclamation-triangle me-1"></i>Non
                                 </span>
                             @endif
@@ -281,7 +281,7 @@
         <div class="card-body">
             @if($pharmacies->count() > 0)
                 <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <table class="table table-bordered table-hover align-middle" id="dataTable" width="100%" cellspacing="0">
                         <thead>
                             <tr>
                                 <th>Nom</th>
@@ -313,16 +313,16 @@
                                 <td>{{ $pharmacy->city }}</td>
                                 <td>
                                     @if($pharmacy->is_active)
-                                        <span class="badge badge-success">Active</span>
+                                        <span class="badge bg-success">Active</span>
                                     @else
-                                        <span class="badge badge-danger">Inactive</span>
+                                        <span class="badge bg-danger">Inactive</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($pharmacy->is_verified)
-                                        <span class="badge badge-success">Vérifiée</span>
+                                        <span class="badge bg-success">Vérifiée</span>
                                     @else
-                                        <span class="badge badge-warning">En attente</span>
+                                        <span class="badge bg-warning text-dark">En attente</span>
                                     @endif
                                 </td>
                                 <td>{{ $pharmacy->created_at->format('d/m/Y H:i') }}</td>
@@ -423,9 +423,9 @@
                         <label class="form-label fw-bold">Statut du profil</label>
                         <p class="form-control-plaintext">
                             @if(Auth::user()->profile_completed)
-                                <span class="badge badge-success">Complet</span>
+                                <span class="badge bg-success">Complet</span>
                             @else
-                                <span class="badge badge-warning">Incomplet</span>
+                                <span class="badge bg-warning text-dark">Incomplet</span>
                             @endif
                         </p>
                     </div>

@@ -152,6 +152,33 @@
     background-clip: text;
 }
 
+/* Tableaux modernes (appliqué aux tables existantes) */
+.table.table-bordered thead th {
+    background-color: #f8fafc;
+    color: #334155;
+    border-bottom-width: 2px;
+}
+.table.table-bordered tbody tr:hover {
+    background-color: #f9fffb;
+}
+.table.table-bordered td, .table.table-bordered th {
+    vertical-align: middle;
+}
+.table-responsive {
+    border-radius: 0.75rem;
+}
+
+/* Badges harmonisés Bootstrap 5 */
+.badge.bg-warning { color: #1f2937; }
+
+/* Boutons doux */
+.btn-soft-success { background: rgba(16,185,129,.1); color: #059669; border: 1px solid rgba(16,185,129,.2); }
+.btn-soft-success:hover { background: rgba(16,185,129,.15); }
+.btn-soft-warning { background: rgba(245,158,11,.1); color: #b45309; border: 1px solid rgba(245,158,11,.2); }
+.btn-soft-warning:hover { background: rgba(245,158,11,.15); }
+.btn-soft-danger { background: rgba(239,68,68,.1); color: #b91c1c; border: 1px solid rgba(239,68,68,.2); }
+.btn-soft-danger:hover { background: rgba(239,68,68,.15); }
+
 /* Amélioration des ombres */
 .shadow-green {
     box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1), 0 10px 10px -5px rgba(16, 185, 129, 0.04);
