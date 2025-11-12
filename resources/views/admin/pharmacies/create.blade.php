@@ -1,0 +1,2 @@
+@include('pharmacist.create-pharmacy')
+

@@ -3,200 +3,262 @@
 @section('title', 'Créer un Utilisateur - Administration')
 
 @section('content')
-<div class="container-fluid" style="background-color: #f8f9fa; min-height: 100vh;">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center py-4 px-4 mb-4 bg-white shadow-sm">
-        <div>
-            <h1 class="h3 mb-0 text-dark">
-                <i class="fas fa-user-plus text-success me-2"></i>
-                Créer un Utilisateur
-            </h1>
-            <p class="text-muted mb-0">Ajouter un nouvel utilisateur à la plateforme</p>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
+    <!-- Header avec gradient -->
+    <div class="bg-gradient-to-r from-green-600 to-green-700 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">
+                        <i class="fas fa-user-plus mr-3"></i>
+                        Créer un Utilisateur
+                    </h1>
+                    <p class="text-green-100 mt-2 text-lg">Ajouter un nouvel utilisateur à la plateforme</p>
+                </div>
+                <a href="{{ route('admin.users') }}" class="bg-white text-green-700 px-4 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200 font-medium shadow-md">
+                    <i class="fas fa-arrow-left mr-2"></i>Retour
+                </a>
+            </div>
         </div>
-        <a href="{{ route('admin.users') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left me-2"></i>
-            Retour à la liste
-        </a>
     </div>
 
-    <!-- Formulaire -->
-    <div class="row px-4">
-        <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-user me-2"></i>
-                        Informations de l'utilisateur
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('admin.users.store') }}" method="POST">
+    <!-- Breadcrumb -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav class="flex items-center space-x-2 text-sm">
+                <a href="{{ route('home') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    <i class="fas fa-home mr-1"></i>Accueil
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <a href="{{ route('admin.dashboard') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    Administration
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <a href="{{ route('admin.users') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    Utilisateurs
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <span class="text-gray-600 font-medium">Créer</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Formulaire -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-user text-green-500 mr-2"></i>Informations de l'utilisateur
+                    </h2>
+                    
+                    <form action="{{ route('admin.users.store') }}" method="POST" class="space-y-6">
                         @csrf
                         
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="name" class="form-label">Nom complet <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                       id="name" name="name" value="{{ old('name') }}" required>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nom complet <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" 
+                                       id="name" 
+                                       name="name" 
+                                       value="{{ old('name') }}" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('name') border-red-500 @enderror">
                                 @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">Adresse email <span class="text-danger">*</span></label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                       id="email" name="email" value="{{ old('email') }}" required>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Adresse email <span class="text-red-500">*</span>
+                                </label>
+                                <input type="email" 
+                                       id="email" 
+                                       name="email" 
+                                       value="{{ old('email') }}" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('email') border-red-500 @enderror">
                                 @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label">Mot de passe <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                       id="password" name="password" required>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Mot de passe <span class="text-red-500">*</span>
+                                </label>
+                                <input type="password" 
+                                       id="password" 
+                                       name="password" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('password') border-red-500 @enderror">
                                 @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
-                                <small class="form-text text-muted">Minimum 8 caractères</small>
+                                <p class="mt-1 text-xs text-gray-500">Minimum 8 caractères</p>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="password_confirmation" class="form-label">Confirmer le mot de passe <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control" 
-                                       id="password_confirmation" name="password_confirmation" required>
+                            <div>
+                                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Confirmer le mot de passe <span class="text-red-500">*</span>
+                                </label>
+                                <input type="password" 
+                                       id="password_confirmation" 
+                                       name="password_confirmation" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="role" class="form-label">Rôle <span class="text-danger">*</span></label>
-                                <select class="form-control @error('role') is-invalid @enderror" 
-                                        id="role" name="role" required>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="role" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Rôle <span class="text-red-500">*</span>
+                                </label>
+                                <select id="role" 
+                                        name="role" 
+                                        required
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('role') border-red-500 @enderror">
                                     <option value="">Sélectionner un rôle</option>
                                     <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>Utilisateur</option>
                                     <option value="pharmacist" {{ old('role') == 'pharmacist' ? 'selected' : '' }}>Pharmacien</option>
                                     <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Administrateur</option>
                                 </select>
                                 @error('role')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label for="authorization_number" class="form-label">Numéro d'autorisation</label>
-                                <input type="text" class="form-control @error('authorization_number') is-invalid @enderror" 
-                                       id="authorization_number" name="authorization_number" 
-                                       value="{{ old('authorization_number') }}">
+                            <div>
+                                <label for="authorization_number" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Numéro d'autorisation
+                                </label>
+                                <input type="text" 
+                                       id="authorization_number" 
+                                       name="authorization_number" 
+                                       value="{{ old('authorization_number') }}"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('authorization_number') border-red-500 @enderror">
                                 @error('authorization_number')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
-                                <small class="form-text text-muted">Requis pour les pharmaciens</small>
+                                <p class="mt-1 text-xs text-gray-500">Requis pour les pharmaciens</p>
                             </div>
                         </div>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="profile_completed" 
-                                           name="profile_completed" value="1" {{ old('profile_completed') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="profile_completed">
-                                        Profil complété
-                                    </label>
-                                </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="flex items-center">
+                                <input type="checkbox" 
+                                       id="profile_completed" 
+                                       name="profile_completed" 
+                                       value="1" 
+                                       {{ old('profile_completed') ? 'checked' : '' }}
+                                       class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                <label for="profile_completed" class="ml-2 block text-sm text-gray-700">
+                                    Profil complété
+                                </label>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="email_verified" 
-                                           name="email_verified" value="1" {{ old('email_verified') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="email_verified">
-                                        Email vérifié
-                                    </label>
-                                </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" 
+                                       id="email_verified" 
+                                       name="email_verified" 
+                                       value="1" 
+                                       {{ old('email_verified') ? 'checked' : '' }}
+                                       class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                <label for="email_verified" class="ml-2 block text-sm text-gray-700">
+                                    Email vérifié
+                                </label>
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-end">
-                            <a href="{{ route('admin.users') }}" class="btn btn-secondary me-2">
-                                <i class="fas fa-times me-2"></i>
-                                Annuler
+                        <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                            <a href="{{ route('admin.users') }}" class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors duration-200">
+                                <i class="fas fa-times mr-2"></i>Annuler
                             </a>
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-2"></i>
-                                Créer l'utilisateur
+                            <button type="submit" class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+                                <i class="fas fa-save mr-2"></i>Créer l'utilisateur
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-4">
-            <!-- Aide -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Informations
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <h6>Rôles disponibles :</h6>
-                    <ul class="list-unstyled">
-                        <li><span class="badge badge-info">Utilisateur</span> - Accès public</li>
-                        <li><span class="badge badge-success">Pharmacien</span> - Gestion pharmacies</li>
-                        <li><span class="badge badge-danger">Administrateur</span> - Accès complet</li>
-                    </ul>
-
-                    <hr>
-
-                    <h6>Champs obligatoires :</h6>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-check text-success mr-1"></i> Nom complet</li>
-                        <li><i class="fas fa-check text-success mr-1"></i> Adresse email</li>
-                        <li><i class="fas fa-check text-success mr-1"></i> Mot de passe</li>
-                        <li><i class="fas fa-check text-success mr-1"></i> Rôle</li>
-                    </ul>
-
-                    <hr>
-
-                    <h6>Notes :</h6>
-                    <p class="small text-muted">
-                        Le numéro d'autorisation est requis pour les pharmaciens. 
-                        L'utilisateur recevra un email de bienvenue avec ses identifiants.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Statistiques -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-chart-bar me-2"></i>
-                        Statistiques
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-4">
-                            <div class="border-right">
-                                <div class="h4 mb-0 text-primary">{{ \App\Models\User::count() }}</div>
-                                <div class="small text-muted">Total</div>
-                            </div>
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Aide -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-info-circle text-green-500 mr-2"></i>Informations
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">Rôles disponibles :</h4>
+                            <ul class="space-y-2 text-sm text-gray-600">
+                                <li class="flex items-center">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium mr-2">Utilisateur</span>
+                                    <span class="text-gray-500">- Accès public</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium mr-2">Pharmacien</span>
+                                    <span class="text-gray-500">- Gestion pharmacies</span>
+                                </li>
+                                <li class="flex items-center">
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 rounded text-xs font-medium mr-2">Administrateur</span>
+                                    <span class="text-gray-500">- Accès complet</span>
+                                </li>
+                            </ul>
                         </div>
-                        <div class="col-4">
-                            <div class="border-right">
-                                <div class="h4 mb-0 text-success">{{ \App\Models\User::where('role', 'pharmacist')->count() }}</div>
-                                <div class="small text-muted">Pharmaciens</div>
-                            </div>
+
+                        <div class="border-t border-gray-200 pt-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">Champs obligatoires :</h4>
+                            <ul class="space-y-1 text-sm text-gray-600">
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>Nom complet
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>Adresse email
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>Mot de passe
+                                </li>
+                                <li class="flex items-center">
+                                    <i class="fas fa-check text-green-500 mr-2"></i>Rôle
+                                </li>
+                            </ul>
                         </div>
-                        <div class="col-4">
-                            <div class="h4 mb-0 text-info">{{ \App\Models\User::where('role', 'user')->count() }}</div>
-                            <div class="small text-muted">Utilisateurs</div>
+
+                        <div class="border-t border-gray-200 pt-4">
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-lightbulb text-yellow-500 mr-2"></i>
+                                Le numéro d'autorisation est requis pour les pharmaciens. 
+                                L'utilisateur recevra un email de bienvenue avec ses identifiants.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistiques -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-chart-bar text-green-500 mr-2"></i>Statistiques
+                    </h3>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="text-2xl font-bold text-blue-600">{{ \App\Models\User::count() }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Total</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-green-600">{{ \App\Models\User::where('role', 'pharmacist')->count() }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Pharmaciens</div>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold text-purple-600">{{ \App\Models\User::where('role', 'user')->count() }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Utilisateurs</div>
                         </div>
                     </div>
                 </div>
@@ -204,7 +266,6 @@
         </div>
     </div>
 </div>
-@endsection
 
 @push('scripts')
 <script>
@@ -216,7 +277,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function toggleAuthorizationField() {
         if (roleSelect.value === 'pharmacist') {
             authorizationField.required = true;
-            authorizationLabel.innerHTML = 'Numéro d\'autorisation <span class="text-danger">*</span>';
+            authorizationLabel.innerHTML = 'Numéro d\'autorisation <span class="text-red-500">*</span>';
         } else {
             authorizationField.required = false;
             authorizationLabel.innerHTML = 'Numéro d\'autorisation';
@@ -228,3 +289,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
+@endsection

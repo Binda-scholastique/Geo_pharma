@@ -43,7 +43,8 @@ class LoginController extends Controller
         } elseif ($user->isPharmacist()) {
             return redirect()->route('pharmacist.dashboard');
         } else {
-            return redirect()->route('home');
+            // Les utilisateurs normaux sont redirigés vers la page de recherche de pharmacies
+            return redirect()->route('pharmacies.index');
         }
     }
 

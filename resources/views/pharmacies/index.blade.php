@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center">
                 <h1 class="text-4xl md:text-6xl font-bold mb-6">
-                    Trouvez votre <span class="text-green-200">pharmacie</span>
+                    Trouvez la <span class="text-green-200">pharmacie</span>
                 </h1>
                 <p class="text-xl md:text-2xl mb-8 text-green-100">
                     Géolocalisation en temps réel • Contact direct • Services de proximité
@@ -21,7 +21,7 @@
                         <div class="flex-1">
                             <input type="text" 
                                    id="city-search" 
-                                   placeholder="Rechercher par ville..." 
+                                   placeholder="Rechercher par ville (ex: Kinshasa, Lubumbashi...)" 
                                    class="w-full px-6 py-4 rounded-lg text-gray-800 search-input focus:outline-none focus:ring-2 focus:ring-yellow-300">
                         </div>
                         <button onclick="searchByCity()" 

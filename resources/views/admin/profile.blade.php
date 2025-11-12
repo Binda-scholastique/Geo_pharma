@@ -3,188 +3,204 @@
 @section('title', 'Profil Administrateur - GeoPharma')
 
 @section('content')
-<div class="container-fluid" style="background-color: #f8f9fa; min-height: 100vh;">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center py-4 px-4 mb-4 bg-white shadow-sm">
-        <div>
-            <h1 class="h3 mb-0" style="color: #495057;">
-                <i class="fas fa-user-shield me-2" style="color: #10b981;"></i>
-                Profil Administrateur
-            </h1>
-            <p class="text-muted mb-0">Gérez vos informations d'administrateur</p>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
+    <!-- Header avec gradient -->
+    <div class="bg-gradient-to-r from-green-600 to-green-700 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">
+                        <i class="fas fa-user-shield mr-3"></i>
+                        Profil Administrateur
+                    </h1>
+                    <p class="text-green-100 mt-2 text-lg">Gérez vos informations d'administrateur</p>
+                </div>
+                <a href="{{ route('admin.dashboard') }}" class="bg-white text-green-700 px-4 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200 font-medium shadow-md">
+                    <i class="fas fa-arrow-left mr-2"></i>Retour
+                </a>
+            </div>
         </div>
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>
-            Retour au dashboard
-        </a>
     </div>
 
-    <div class="row px-4">
-        <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-user-edit me-2"></i>
-                        Informations Administrateur
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ route('admin.profile.update') }}">
+    <!-- Breadcrumb -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav class="flex items-center space-x-2 text-sm">
+                <a href="{{ route('home') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    <i class="fas fa-home mr-1"></i>Accueil
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <a href="{{ route('admin.dashboard') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    Administration
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <span class="text-gray-600 font-medium">Profil</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Contenu principal -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Informations Administrateur -->
+                <div class="bg-white rounded-xl shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-user-edit text-green-500 mr-2"></i>Informations Administrateur
+                    </h2>
+                    <form method="POST" action="{{ route('admin.profile.update') }}" class="space-y-6">
                         @csrf
                         @method('PUT')
                         
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="name" class="form-label">Nom complet</label>
-                                <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                       id="name" name="name" value="{{ old('name', auth()->user()->name) }}" required>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                                <input type="text" 
+                                       id="name" 
+                                       name="name" 
+                                       value="{{ old('name', auth()->user()->name) }}" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('name') border-red-500 @enderror">
                                 @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror" 
-                                       id="email" name="email" value="{{ old('email', auth()->user()->email) }}" required>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" 
+                                       id="email" 
+                                       name="email" 
+                                       value="{{ old('email', auth()->user()->email) }}" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('email') border-red-500 @enderror">
                                 @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
                         
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-save me-2"></i>
-                                Mettre à jour le profil
+                        <div class="pt-6 border-t border-gray-200">
+                            <button type="submit" class="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center justify-center">
+                                <i class="fas fa-save mr-2"></i>Mettre à jour le profil
                             </button>
                         </div>
                     </form>
                 </div>
-            </div>
-            
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-lock me-2"></i>
-                        Changer le mot de passe
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ route('admin.password.update') }}">
+                
+                <!-- Changer le mot de passe -->
+                <div class="bg-white rounded-xl shadow-lg p-8" id="password">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-lock text-green-500 mr-2"></i>Changer le mot de passe
+                    </h2>
+                    <form method="POST" action="{{ route('admin.password.update') }}" class="space-y-6">
                         @csrf
                         @method('PUT')
                         
-                        <div class="mb-3">
-                            <label for="current_password" class="form-label">Mot de passe actuel</label>
-                            <input type="password" class="form-control @error('current_password') is-invalid @enderror" 
-                                   id="current_password" name="current_password" required>
+                        <div>
+                            <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">Mot de passe actuel</label>
+                            <input type="password" 
+                                   id="current_password" 
+                                   name="current_password" 
+                                   required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('current_password') border-red-500 @enderror">
                             @error('current_password')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
                         
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label">Nouveau mot de passe</label>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror" 
-                                       id="password" name="password" required>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Nouveau mot de passe</label>
+                                <input type="password" 
+                                       id="password" 
+                                       name="password" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('password') border-red-500 @enderror">
                                 @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="password_confirmation" class="form-label">Confirmer le mot de passe</label>
-                                <input type="password" class="form-control" 
-                                       id="password_confirmation" name="password_confirmation" required>
+                            <div>
+                                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Confirmer le mot de passe</label>
+                                <input type="password" 
+                                       id="password_confirmation" 
+                                       name="password_confirmation" 
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                             </div>
                         </div>
                         
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-warning">
-                                <i class="fas fa-key me-2"></i>
-                                Changer le mot de passe
+                        <div class="pt-6 border-t border-gray-200">
+                            <button type="submit" class="w-full bg-yellow-500 text-white px-6 py-3 rounded-lg hover:bg-yellow-600 transition-colors duration-200 flex items-center justify-center">
+                                <i class="fas fa-key mr-2"></i>Changer le mot de passe
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-lg-4">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Informations du compte
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <strong>Type de compte :</strong>
-                        <span class="badge bg-danger ms-2">Administrateur</span>
-                    </div>
-                    <div class="mb-3">
-                        <strong>Membre depuis :</strong>
-                        <br>{{ auth()->user()->created_at->format('d/m/Y') }}
-                    </div>
-                    <div class="mb-3">
-                        <strong>Email vérifié :</strong>
-                        @if(auth()->user()->email_verified_at)
-                            <span class="badge bg-success ms-2">
-                                <i class="fas fa-check me-1"></i>Oui
-                            </span>
-                        @else
-                            <span class="badge bg-warning ms-2">
-                                <i class="fas fa-exclamation-triangle me-1"></i>Non
-                            </span>
-                        @endif
-                    </div>
-                </div>
-            </div>
             
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-chart-bar me-2"></i>
-                        Statistiques d'administration
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <div class="border-end">
-                                <h4 class="text-primary mb-1">{{ \App\Models\User::count() }}</h4>
-                                <small class="text-muted">Utilisateurs</small>
-                            </div>
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Informations du compte -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-info-circle text-green-500 mr-2"></i>Informations du compte
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Type de compte</label>
+                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">Administrateur</span>
                         </div>
-                        <div class="col-6 mb-3">
-                            <h4 class="text-success mb-1">{{ \App\Models\Pharmacy::count() }}</h4>
-                            <small class="text-muted">Pharmacies</small>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Membre depuis</label>
+                            <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->created_at->format('d/m/Y') }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Email vérifié</label>
+                            @if(auth()->user()->email_verified_at)
+                                <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                    <i class="fas fa-check mr-1"></i>Oui
+                                </span>
+                            @else
+                                <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                                    <i class="fas fa-exclamation-triangle mr-1"></i>Non
+                                </span>
+                            @endif
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-cog me-2"></i>
-                        Actions rapides
-                    </h6>
+                
+                <!-- Statistiques d'administration -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-chart-bar text-green-500 mr-2"></i>Statistiques d'administration
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <div class="text-3xl font-bold text-blue-600">{{ \App\Models\User::count() }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Utilisateurs</div>
+                        </div>
+                        <div>
+                            <div class="text-3xl font-bold text-green-600">{{ \App\Models\Pharmacy::count() }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Pharmacies</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{{ route('admin.settings') }}" class="btn btn-outline-primary">
-                            <i class="fas fa-cog me-2"></i>
-                            Paramètres
+                
+                <!-- Actions rapides -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-bolt text-green-500 mr-2"></i>Actions rapides
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="{{ route('admin.settings') }}" class="w-full flex items-center justify-center px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors">
+                            <i class="fas fa-cog mr-2"></i>Paramètres
                         </a>
-                        <a href="{{ route('admin.users') }}" class="btn btn-outline-info">
-                            <i class="fas fa-users me-2"></i>
-                            Gestion utilisateurs
+                        <a href="{{ route('admin.users') }}" class="w-full flex items-center justify-center px-4 py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors">
+                            <i class="fas fa-users mr-2"></i>Gestion utilisateurs
                         </a>
-                        <a href="{{ route('admin.pharmacies') }}" class="btn btn-outline-success">
-                            <i class="fas fa-store me-2"></i>
-                            Gestion pharmacies
+                        <a href="{{ route('admin.pharmacies') }}" class="w-full flex items-center justify-center px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors">
+                            <i class="fas fa-store mr-2"></i>Gestion pharmacies
                         </a>
                     </div>
                 </div>

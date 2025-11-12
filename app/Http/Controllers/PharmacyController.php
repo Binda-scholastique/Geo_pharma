@@ -133,6 +133,14 @@ class PharmacyController extends Controller
                     ->where('city', 'like', '%' . $request->search_city . '%')
                     ->with('pharmacist')
                     ->get();
+                    
+            } elseif ($request->search_type === 'name' && $request->has('search_name')) {
+                // Recherche par nom
+                $pharmacies = Pharmacy::active()
+                    ->verified()
+                    ->where('name', 'like', '%' . $request->search_name . '%')
+                    ->with('pharmacist')
+                    ->get();
             }
             
             // Filtrer par services si spécifiés

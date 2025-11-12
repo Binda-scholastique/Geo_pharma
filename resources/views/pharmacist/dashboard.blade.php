@@ -3,260 +3,264 @@
 @section('title', 'Dashboard Pharmacien - GeoPharma')
 
 @section('content')
-<div class="container-fluid" style="background-color: #f8f9fa; min-height: 100vh;">
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
     <!-- Header avec gradient -->
-    <div class="py-4 px-4 mb-4" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 0.5rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h2 text-white mb-1">
-                    <i class="fas fa-user-md me-2"></i>
-                    Dashboard Pharmacien
-                </h1>
-                <p class="text-white-50 mb-0">
-                    @if($pharmacies->count() > 0)
-                        Vous gérez {{ $pharmacies->count() }} pharmacie{{ $pharmacies->count() > 1 ? 's' : '' }}
-                    @else
-                        Gérez vos pharmacies et votre profil
-                    @endif
-                </p>
-            </div>
-            <div class="text-end">
-                <div class="text-white-50 small">
-                    @php
-                        $hour = date('H');
-                        if ($hour < 12) {
-                            $greeting = 'Bonjour';
-                        } elseif ($hour < 18) {
-                            $greeting = 'Bon après-midi';
-                        } else {
-                            $greeting = 'Bonsoir';
-                        }
-                    @endphp
-                    {{ $greeting }},
+    <div class="bg-gradient-to-r from-green-600 to-green-700 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">
+                        <i class="fas fa-user-md mr-3"></i>
+                        Dashboard Pharmacien
+                    </h1>
+                    <p class="text-green-100 mt-2 text-lg">
+                        @if($pharmacies->count() > 0)
+                            Vous gérez {{ $pharmacies->count() }} pharmacie{{ $pharmacies->count() > 1 ? 's' : '' }}
+                        @else
+                            Gérez vos pharmacies et votre profil
+                        @endif
+                    </p>
                 </div>
-                <div class="text-white h5 mb-0">{{ Auth::user()->name }}</div>
-                <div class="text-white-50 small">{{ Auth::user()->email }}</div>
+                <div class="text-right">
+                    <div class="text-green-100 text-sm">
+                        @php
+                            $hour = date('H');
+                            if ($hour < 12) {
+                                $greeting = 'Bonjour';
+                            } elseif ($hour < 18) {
+                                $greeting = 'Bon après-midi';
+                            } else {
+                                $greeting = 'Bonsoir';
+                            }
+                        @endphp
+                        {{ $greeting }},
+                    </div>
+                    <div class="text-white font-semibold text-xl">{{ Auth::user()->name }}</div>
+                    <div class="text-green-200 text-sm">{{ Auth::user()->email }}</div>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav class="flex items-center space-x-2 text-sm">
+                <a href="{{ route('home') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    <i class="fas fa-home mr-1"></i>Accueil
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <span class="text-gray-600 font-medium">Dashboard Pharmacien</span>
+            </nav>
         </div>
     </div>
 
     <!-- Alerte profil incomplet -->
     @if(!Auth::user()->profile_completed || !Auth::user()->latitude || !Auth::user()->longitude)
-        <div class="alert alert-warning alert-dismissible fade show mx-4" role="alert">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                <div class="flex-grow-1">
-                    <h5 class="alert-heading mb-1">Profil incomplet</h5>
-                    <p class="mb-2">Votre profil n'est pas encore complet. Complétez-le pour améliorer votre visibilité.</p>
-                    <div class="d-flex gap-2">
-                        @if(!Auth::user()->profile_completed)
-                            <a href="{{ route('pharmacist.complete-profile') }}" class="btn btn-warning btn-sm">
-                                <i class="fas fa-user-edit me-1"></i>Compléter le profil
-                            </a>
-                        @endif
-                        @if(!Auth::user()->latitude || !Auth::user()->longitude)
-                            <a href="{{ route('pharmacist.location') }}" class="btn btn-primary btn-sm">
-                                <i class="fas fa-map-marker-alt me-1"></i>Ajouter ma localisation
-                            </a>
-                        @endif
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg shadow-md">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-400 text-2xl"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <h3 class="text-sm font-medium text-yellow-800 mb-2">Profil incomplet</h3>
+                        <p class="text-sm text-yellow-700 mb-3">Votre profil n'est pas encore complet. Complétez-le pour améliorer votre visibilité.</p>
+                        <div class="flex flex-wrap gap-2">
+                            @if(!Auth::user()->profile_completed)
+                                <a href="{{ route('pharmacist.complete-profile') }}" class="inline-flex items-center px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors duration-200 text-sm">
+                                    <i class="fas fa-user-edit mr-2"></i>Compléter le profil
+                                </a>
+                            @endif
+                            @if(!Auth::user()->latitude || !Auth::user()->longitude)
+                                <a href="{{ route('pharmacist.location') }}" class="inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200 text-sm">
+                                    <i class="fas fa-map-marker-alt mr-2"></i>Ajouter ma localisation
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
     <!-- Statistiques -->
-    <div class="row mb-4 px-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-primary border-3 shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col me-2">
-                            <div class="small fw-bold text-primary text-uppercase mb-1">
-                                Mes Pharmacies
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-dark">{{ $pharmacies->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-store fa-2x text-muted"></i>
-                        </div>
-                    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between border-l-4 border-blue-500 hover:shadow-xl transition-shadow duration-300">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Mes Pharmacies</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ $pharmacies->count() }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Total enregistrées</p>
+                </div>
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <i class="fas fa-store text-blue-600 text-2xl"></i>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-success border-3 shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col me-2">
-                            <div class="small fw-bold text-success text-uppercase mb-1">
-                                Pharmacies Actives
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-dark">{{ $pharmacies->where('is_active', true)->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-check-circle fa-2x text-muted"></i>
-                        </div>
-                    </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between border-l-4 border-green-500 hover:shadow-xl transition-shadow duration-300">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Pharmacies Actives</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ $pharmacies->where('is_active', true)->count() }}</p>
+                    <p class="text-xs text-gray-500 mt-1">En service</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <i class="fas fa-check-circle text-green-600 text-2xl"></i>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-info border-3 shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col me-2">
-                            <div class="small fw-bold text-info text-uppercase mb-1">
-                                Pharmacies Vérifiées
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-dark">{{ $pharmacies->where('is_verified', true)->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-shield-alt fa-2x text-muted"></i>
-                        </div>
-                    </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between border-l-4 border-yellow-500 hover:shadow-xl transition-shadow duration-300">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Pharmacies Vérifiées</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ $pharmacies->where('is_verified', true)->count() }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Approuvées</p>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded-full">
+                    <i class="fas fa-shield-alt text-yellow-600 text-2xl"></i>
                 </div>
             </div>
-        </div>
 
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-warning border-3 shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col me-2">
-                            <div class="small fw-bold text-warning text-uppercase mb-1">
-                                En Attente
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-dark">{{ $pharmacies->where('is_verified', false)->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-clock fa-2x text-muted"></i>
-                        </div>
-                    </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between border-l-4 border-red-500 hover:shadow-xl transition-shadow duration-300">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">En Attente</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ $pharmacies->where('is_verified', false)->count() }}</p>
+                    <p class="text-xs text-gray-500 mt-1">À vérifier</p>
+                </div>
+                <div class="bg-red-100 p-3 rounded-full">
+                    <i class="fas fa-clock text-red-600 text-2xl"></i>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Actions rapides -->
-    <div class="card shadow mb-4 mx-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 fw-bold text-primary">
-                <i class="fas fa-bolt me-2"></i>
-                Actions Rapides
-            </h6>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-lg-3 mb-3">
-                    <a href="{{ route('pharmacist.create-pharmacy') }}" class="btn btn-success btn-block h-100 d-flex flex-column justify-content-center align-items-center p-4">
-                        <i class="fas fa-plus fa-2x mb-2"></i>
-                        <span class="fw-bold">Ajouter une pharmacie</span>
-                        <small class="text-muted">Nouvelle pharmacie</small>
-                    </a>
-                </div>
-                <div class="col-lg-3 mb-3">
-                    <a href="{{ route('pharmacist.profile') }}" class="btn btn-info btn-block h-100 d-flex flex-column justify-content-center align-items-center p-4">
-                        <i class="fas fa-user-edit fa-2x mb-2"></i>
-                        <span class="fw-bold">Modifier mon profil</span>
-                        <small class="text-muted">Informations personnelles</small>
-                    </a>
-                </div>
-                <div class="col-lg-3 mb-3">
-                    <a href="{{ route('pharmacist.location') }}" class="btn btn-primary btn-block h-100 d-flex flex-column justify-content-center align-items-center p-4">
-                        <i class="fas fa-map-marker-alt fa-2x mb-2"></i>
-                        <span class="fw-bold">Ma localisation</span>
-                        <small class="text-muted">Position GPS</small>
-                    </a>
-                </div>
-                <div class="col-lg-3 mb-3">
-                    <a href="{{ route('pharmacist.settings') }}" class="btn btn-warning btn-block h-100 d-flex flex-column justify-content-center align-items-center p-4">
-                        <i class="fas fa-cog fa-2x mb-2"></i>
-                        <span class="fw-bold">Paramètres</span>
-                        <small class="text-muted">Configuration du compte</small>
-                    </a>
-                </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-bolt text-green-500 mr-2"></i>Actions Rapides
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <a href="{{ route('pharmacist.create-pharmacy') }}" class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg hover:from-green-100 hover:to-green-200 transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg">
+                    <div class="bg-green-500 p-4 rounded-full mb-4 group-hover:bg-green-600 transition-colors">
+                        <i class="fas fa-plus text-white text-2xl"></i>
+                    </div>
+                    <span class="text-lg font-medium text-gray-800 text-center">Ajouter une pharmacie</span>
+                    <span class="text-sm text-gray-600 mt-1 text-center">Nouvelle pharmacie</span>
+                </a>
+
+                <a href="{{ route('pharmacist.profile') }}" class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg hover:from-blue-100 hover:to-blue-200 transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg">
+                    <div class="bg-blue-500 p-4 rounded-full mb-4 group-hover:bg-blue-600 transition-colors">
+                        <i class="fas fa-user-edit text-white text-2xl"></i>
+                    </div>
+                    <span class="text-lg font-medium text-gray-800 text-center">Modifier mon profil</span>
+                    <span class="text-sm text-gray-600 mt-1 text-center">Informations personnelles</span>
+                </a>
+
+                <a href="{{ route('pharmacist.location') }}" class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg hover:from-purple-100 hover:to-purple-200 transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg">
+                    <div class="bg-purple-500 p-4 rounded-full mb-4 group-hover:bg-purple-600 transition-colors">
+                        <i class="fas fa-map-marker-alt text-white text-2xl"></i>
+                    </div>
+                    <span class="text-lg font-medium text-gray-800 text-center">Ma localisation</span>
+                    <span class="text-sm text-gray-600 mt-1 text-center">Position GPS</span>
+                </a>
+
+                <a href="{{ route('pharmacist.settings') }}" class="group flex flex-col items-center justify-center p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg hover:from-yellow-100 hover:to-yellow-200 transition-all duration-300 transform hover:-translate-y-1 shadow-md hover:shadow-lg">
+                    <div class="bg-yellow-500 p-4 rounded-full mb-4 group-hover:bg-yellow-600 transition-colors">
+                        <i class="fas fa-cog text-white text-2xl"></i>
+                    </div>
+                    <span class="text-lg font-medium text-gray-800 text-center">Paramètres</span>
+                    <span class="text-sm text-gray-600 mt-1 text-center">Configuration du compte</span>
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Informations du profil -->
-    <div class="row px-4 mb-4">
-        <div class="col-lg-6">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-user-md me-2"></i>
-                        Informations du Profil
-                    </h6>
+    <!-- Informations du profil et statistiques -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Informations du Profil -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-user-md text-green-500 mr-2"></i>Informations du Profil
+                    </h3>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-sm-6 mb-3">
-                            <strong>Nom :</strong><br>
-                            {{ Auth::user()->name }}
+                <div class="space-y-4">
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Nom complet</p>
+                            <p class="text-base font-semibold text-gray-900">{{ Auth::user()->name }}</p>
                         </div>
-                        <div class="col-sm-6 mb-3">
-                            <strong>Email :</strong><br>
-                            {{ Auth::user()->email }}
-                        </div>
-                        <div class="col-sm-6 mb-3">
-                            <strong>Numéro d'autorisation :</strong><br>
-                            {{ Auth::user()->authorization_number ?? 'Non renseigné' }}
-                        </div>
-                        <div class="col-sm-6 mb-3">
-                            <strong>Profil complété :</strong><br>
-                            @if(Auth::user()->profile_completed)
-                                <span class="badge bg-success">
-                                    <i class="fas fa-check me-1"></i>Oui
-                                </span>
-                            @else
-                                <span class="badge bg-warning text-dark">
-                                    <i class="fas fa-exclamation-triangle me-1"></i>Non
-                                </span>
-                            @endif
-                        </div>
-                        @if(Auth::user()->latitude && Auth::user()->longitude)
-                            <div class="col-sm-6 mb-3">
-                                <strong>Localisation :</strong><br>
-                                <span class="badge bg-success">
-                                    <i class="fas fa-map-marker-alt me-1"></i>Définie
-                                </span>
-                            </div>
-                        @endif
+                        <i class="fas fa-user text-gray-400 text-xl"></i>
                     </div>
+                    
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Email</p>
+                            <p class="text-base font-semibold text-gray-900">{{ Auth::user()->email }}</p>
+                        </div>
+                        <i class="fas fa-envelope text-gray-400 text-xl"></i>
+                    </div>
+                    
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Numéro d'autorisation</p>
+                            <p class="text-base font-semibold text-gray-900">{{ Auth::user()->authorization_number ?? 'Non renseigné' }}</p>
+                        </div>
+                        <i class="fas fa-key text-gray-400 text-xl"></i>
+                    </div>
+                    
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Profil complété</p>
+                            <div>
+                                @if(Auth::user()->profile_completed)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-2"></i>Oui
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>Non
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <i class="fas fa-user-check text-gray-400 text-xl"></i>
+                    </div>
+                    
+                    @if(Auth::user()->latitude && Auth::user()->longitude)
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Localisation GPS</p>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-map-marker-alt mr-2"></i>Définie
+                            </span>
+                        </div>
+                        <i class="fas fa-map-marker-alt text-gray-400 text-xl"></i>
+                    </div>
+                    @endif
                 </div>
             </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-chart-pie me-2"></i>
-                        Statistiques Rapides
-                    </h6>
+            
+            <!-- Statistiques Rapides -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-chart-pie text-green-500 mr-2"></i>Statistiques Rapides
+                    </h3>
                 </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-4 mb-3">
-                            <div class="border-end">
-                                <h4 class="text-primary mb-1">{{ $pharmacies->count() }}</h4>
-                                <small class="text-muted">Total</small>
-                            </div>
-                        </div>
-                        <div class="col-4 mb-3">
-                            <div class="border-end">
-                                <h4 class="text-success mb-1">{{ $pharmacies->where('is_verified', true)->count() }}</h4>
-                                <small class="text-muted">Vérifiées</small>
-                            </div>
-                        </div>
-                        <div class="col-4 mb-3">
-                            <h4 class="text-warning mb-1">{{ $pharmacies->where('is_verified', false)->count() }}</h4>
-                            <small class="text-muted">En attente</small>
-                        </div>
+                <div class="grid grid-cols-3 gap-4">
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <p class="text-3xl font-bold text-blue-600 mb-1">{{ $pharmacies->count() }}</p>
+                        <p class="text-sm text-gray-600">Total</p>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <p class="text-3xl font-bold text-green-600 mb-1">{{ $pharmacies->where('is_verified', true)->count() }}</p>
+                        <p class="text-sm text-gray-600">Vérifiées</p>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                        <p class="text-3xl font-bold text-yellow-600 mb-1">{{ $pharmacies->where('is_verified', false)->count() }}</p>
+                        <p class="text-sm text-gray-600">En attente</p>
                     </div>
                 </div>
             </div>
@@ -264,76 +268,91 @@
     </div>
 
     <!-- Mes pharmacies -->
-    <div class="card shadow mb-4 mx-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 fw-bold text-primary">
-                <i class="fas fa-store me-2"></i>
-                Mes Pharmacies
-                @if($pharmacies->count() > 0)
-                    <span class="badge bg-primary ms-2">{{ $pharmacies->count() }}</span>
-                @endif
-            </h6>
-            <a href="{{ route('pharmacist.create-pharmacy') }}" class="btn btn-success btn-sm">
-                <i class="fas fa-plus me-1"></i>
-                Ajouter
-            </a>
-        </div>
-        <div class="card-body">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-store text-green-500 mr-2"></i>Mes Pharmacies
+                    @if($pharmacies->count() > 0)
+                        <span class="ml-2 inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                            {{ $pharmacies->count() }}
+                        </span>
+                    @endif
+                </h3>
+                <a href="{{ route('pharmacist.create-pharmacy') }}" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center">
+                    <i class="fas fa-plus mr-2"></i>Ajouter
+                </a>
+            </div>
+            <div>
             @if($pharmacies->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200" id="dataTable">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th>Nom</th>
-                                <th>Adresse</th>
-                                <th>Ville</th>
-                                <th>Statut</th>
-                                <th>Vérification</th>
-                                <th>Date création</th>
-                                <th>Actions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Adresse</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ville</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vérification</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date création</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="bg-white divide-y divide-gray-200">
                             @foreach($pharmacies as $pharmacy)
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                                            <i class="fas fa-store"></i>
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-store text-green-600"></i>
                                         </div>
-                                        <div>
-                                            <div class="fw-bold">{{ $pharmacy->name }}</div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">{{ $pharmacy->name }}</div>
                                             @if($pharmacy->phone)
-                                                <small class="text-muted">{{ $pharmacy->phone }}</small>
+                                                <div class="text-sm text-gray-500">{{ $pharmacy->phone }}</div>
                                             @endif
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $pharmacy->address }}</td>
-                                <td>{{ $pharmacy->city }}</td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ $pharmacy->address }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ $pharmacy->city }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     @if($pharmacy->is_active)
-                                        <span class="badge bg-success">Active</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-check-circle mr-1"></i>Active
+                                        </span>
                                     @else
-                                        <span class="badge bg-danger">Inactive</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            <i class="fas fa-times-circle mr-1"></i>Inactive
+                                        </span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     @if($pharmacy->is_verified)
-                                        <span class="badge bg-success">Vérifiée</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            <i class="fas fa-shield-alt mr-1"></i>Vérifiée
+                                        </span>
                                     @else
-                                        <span class="badge bg-warning text-dark">En attente</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                            <i class="fas fa-clock mr-1"></i>En attente
+                                        </span>
                                     @endif
                                 </td>
-                                <td>{{ $pharmacy->created_at->format('d/m/Y H:i') }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ $pharmacy->created_at->format('d/m/Y H:i') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center space-x-2">
                                         <a href="{{ route('pharmacist.edit-pharmacy', $pharmacy) }}" 
-                                           class="btn btn-sm btn-warning" title="Modifier">
+                                           class="text-yellow-600 hover:text-yellow-900 transition-colors" title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <a href="{{ route('pharmacies.show', $pharmacy) }}" 
-                                           class="btn btn-sm btn-info" title="Voir">
+                                           class="text-blue-600 hover:text-blue-900 transition-colors" title="Voir">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </div>
@@ -344,95 +363,101 @@
                     </table>
                 </div>
             @else
-                <div class="text-center py-5">
-                    <i class="fas fa-store fa-3x text-muted mb-3"></i>
-                    <h5 class="text-gray-600">Aucune pharmacie enregistrée</h5>
-                    <p class="text-muted">Commencez par ajouter votre première pharmacie</p>
-                    <a href="{{ route('pharmacist.create-pharmacy') }}" class="btn btn-success">
-                        <i class="fas fa-plus me-2"></i>
+                <div class="text-center py-12">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gray-100 mb-4">
+                        <i class="fas fa-store text-gray-400 text-3xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Aucune pharmacie enregistrée</h3>
+                    <p class="text-gray-500 mb-6">Commencez par ajouter votre première pharmacie</p>
+                    <a href="{{ route('pharmacist.create-pharmacy') }}" class="inline-flex items-center px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+                        <i class="fas fa-plus mr-2"></i>
                         Ajouter ma première pharmacie
                     </a>
                 </div>
             @endif
+            </div>
         </div>
     </div>
 
     <!-- Activité récente -->
     @if($pharmacies->count() > 0)
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-chart-line me-2"></i>
-                        Statistiques détaillées
-                    </h6>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Statistiques détaillées -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-chart-line text-green-500 mr-2"></i>Statistiques détaillées
+                    </h3>
                 </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <div class="h4 mb-0 text-primary">{{ $pharmacies->count() }}</div>
-                            <div class="small text-muted">Total pharmacies</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="h4 mb-0 text-success">
-                                {{ $pharmacies->where('is_verified', true)->count() }}
-                            </div>
-                            <div class="small text-muted">Vérifiées</div>
-                        </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <p class="text-3xl font-bold text-blue-600 mb-1">{{ $pharmacies->count() }}</p>
+                        <p class="text-sm text-gray-600">Total pharmacies</p>
                     </div>
-                    <hr>
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <div class="h4 mb-0 text-info">
-                                {{ $pharmacies->where('is_active', true)->count() }}
-                            </div>
-                            <div class="small text-muted">Actives</div>
-                        </div>
-                        <div class="col-6">
-                            <div class="h4 mb-0 text-warning">
-                                {{ $pharmacies->where('is_verified', false)->count() }}
-                            </div>
-                            <div class="small text-muted">En attente</div>
-                        </div>
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <p class="text-3xl font-bold text-green-600 mb-1">{{ $pharmacies->where('is_verified', true)->count() }}</p>
+                        <p class="text-sm text-gray-600">Vérifiées</p>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <p class="text-3xl font-bold text-purple-600 mb-1">{{ $pharmacies->where('is_active', true)->count() }}</p>
+                        <p class="text-sm text-gray-600">Actives</p>
+                    </div>
+                    <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                        <p class="text-3xl font-bold text-yellow-600 mb-1">{{ $pharmacies->where('is_verified', false)->count() }}</p>
+                        <p class="text-sm text-gray-600">En attente</p>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 fw-bold text-primary">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Informations du compte
-                    </h6>
+            <!-- Informations du compte -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-info-circle text-green-500 mr-2"></i>Informations du compte
+                    </h3>
                 </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Nom complet</label>
-                        <p class="form-control-plaintext">{{ Auth::user()->name }}</p>
+                <div class="space-y-4">
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Nom complet</p>
+                            <p class="text-base font-semibold text-gray-900">{{ Auth::user()->name }}</p>
+                        </div>
+                        <i class="fas fa-user text-gray-400 text-xl"></i>
                     </div>
                     
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Email</label>
-                        <p class="form-control-plaintext">{{ Auth::user()->email }}</p>
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Email</p>
+                            <p class="text-base font-semibold text-gray-900">{{ Auth::user()->email }}</p>
+                        </div>
+                        <i class="fas fa-envelope text-gray-400 text-xl"></i>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Statut du profil</label>
-                        <p class="form-control-plaintext">
-                            @if(Auth::user()->profile_completed)
-                                <span class="badge bg-success">Complet</span>
-                            @else
-                                <span class="badge bg-warning text-dark">Incomplet</span>
-                            @endif
-                        </p>
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Statut du profil</p>
+                            <div>
+                                @if(Auth::user()->profile_completed)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i class="fas fa-check-circle mr-2"></i>Complet
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>Incomplet
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <i class="fas fa-user-check text-gray-400 text-xl"></i>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Membre depuis</label>
-                        <p class="form-control-plaintext">{{ Auth::user()->created_at->format('d/m/Y') }}</p>
+                    <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-500 mb-1">Membre depuis</p>
+                            <p class="text-base font-semibold text-gray-900">{{ Auth::user()->created_at->format('d/m/Y') }}</p>
+                        </div>
+                        <i class="fas fa-calendar text-gray-400 text-xl"></i>
                     </div>
                 </div>
             </div>
@@ -444,50 +469,62 @@
 
 @push('styles')
 <style>
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
+/* Tableau moderne */
+.min-w-full thead th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-.border-left-primary {
-    border-left: 0.25rem solid #4e73df !important;
+.min-w-full tbody tr:hover {
+    background-color: #f9fafb;
 }
 
-.border-start border-success border-3 {
-    border-left: 0.25rem solid #1cc88a !important;
+/* Animations pour les cartes d'actions */
+.group:hover {
+    transform: translateY(-4px);
 }
 
-.border-start border-info border-3 {
-    border-left: 0.25rem solid #36b9cc !important;
+/* Gradients pour les backgrounds */
+.bg-gradient-to-br {
+    background: linear-gradient(to bottom right, var(--tw-gradient-stops));
 }
 
-.border-start border-warning border-3 {
-    border-left: 0.25rem solid #f6c23e !important;
+.from-green-50 {
+    --tw-gradient-from: #f0fdf4;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(240, 253, 244, 0));
 }
 
-.card {
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
+.to-green-100 {
+    --tw-gradient-to: #dcfce7;
 }
 
-.btn-group .btn {
-    margin-right: 2px;
+.from-blue-50 {
+    --tw-gradient-from: #eff6ff;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(239, 246, 255, 0));
 }
 
-.btn-group .btn:last-child {
-    margin-right: 0;
+.to-blue-100 {
+    --tw-gradient-to: #dbeafe;
 }
 
-.bg-gradient-to-r {
-    background: linear-gradient(to right, #059669, #047857);
+.from-purple-50 {
+    --tw-gradient-from: #faf5ff;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(250, 245, 255, 0));
 }
 
-.text-green-100 {
-    color: #dcfce7;
+.to-purple-100 {
+    --tw-gradient-to: #f3e8ff;
 }
 
-.text-green-200 {
-    color: #bbf7d0;
+.from-yellow-50 {
+    --tw-gradient-from: #fefce8;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(254, 252, 232, 0));
+}
+
+.to-yellow-100 {
+    --tw-gradient-to: #fef9c3;
 }
 </style>
 @endpush

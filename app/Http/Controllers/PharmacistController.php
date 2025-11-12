@@ -75,6 +75,12 @@ class PharmacistController extends Controller
             'services' => 'nullable|array',
         ]);
 
+        // Gérer les horaires (peuvent être envoyés en JSON string ou en array)
+        $openingHours = $request->opening_hours;
+        if (is_string($openingHours)) {
+            $openingHours = json_decode($openingHours, true);
+        }
+
         $pharmacy = Pharmacy::create([
             'name' => $request->name,
             'description' => $request->description,
@@ -87,7 +93,7 @@ class PharmacistController extends Controller
             'phone' => $request->phone,
             'email' => $request->email,
             'whatsapp_number' => $request->whatsapp_number,
-            'opening_hours' => $request->opening_hours,
+            'opening_hours' => $openingHours,
             'services' => $request->services,
             'pharmacist_id' => Auth::id(),
         ]);
@@ -135,7 +141,13 @@ class PharmacistController extends Controller
             'services' => 'nullable|array',
         ]);
 
-        $pharmacy->update($request->all());
+        // Gérer les horaires (peuvent être envoyés en JSON string ou en array)
+        $data = $request->all();
+        if (isset($data['opening_hours']) && is_string($data['opening_hours'])) {
+            $data['opening_hours'] = json_decode($data['opening_hours'], true);
+        }
+
+        $pharmacy->update($data);
 
         return redirect()->route('pharmacist.dashboard')
             ->with('success', 'Pharmacie mise à jour avec succès !');

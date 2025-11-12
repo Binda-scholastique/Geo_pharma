@@ -178,7 +178,7 @@
                         @endif
                         
                         @if($pharmacy->email)
-                            <a href="mailto:{{ $pharmacy->email }}" 
+                            <a href="{{ $pharmacy->email_url }}" 
                                class="w-full bg-gray-500 text-white py-3 px-4 rounded-lg flex items-center justify-center hover:bg-gray-600 transition-colors duration-200">
                                 <i class="fas fa-envelope mr-2"></i>Email
                             </a>

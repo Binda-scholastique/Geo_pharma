@@ -245,6 +245,68 @@ class AdminController extends Controller
     }
 
     /**
+     * Afficher le formulaire de création d'une pharmacie
+     */
+    public function createPharmacy()
+    {
+        $pharmacists = User::where('role', 'pharmacist')->get();
+        return view('admin.pharmacies.create', compact('pharmacists'));
+    }
+
+    /**
+     * Enregistrer une nouvelle pharmacie
+     */
+    public function storePharmacy(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
+            'address' => 'required|string|max:500',
+            'city' => 'required|string|max:100',
+            'postal_code' => 'required|string|max:10',
+            'country' => 'required|string|max:100',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
+            'phone' => 'required|string|max:20',
+            'email' => 'nullable|email|max:255',
+            'whatsapp_number' => 'nullable|string|max:20',
+            'opening_hours' => 'nullable|array',
+            'services' => 'nullable|array',
+            'pharmacist_id' => 'required|exists:users,id',
+            'is_verified' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        // Gérer les horaires (peuvent être envoyés en JSON string ou en array)
+        $openingHours = $request->opening_hours;
+        if (is_string($openingHours)) {
+            $openingHours = json_decode($openingHours, true);
+        }
+
+        $pharmacy = Pharmacy::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'address' => $request->address,
+            'city' => $request->city,
+            'postal_code' => $request->postal_code,
+            'country' => $request->country,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'whatsapp_number' => $request->whatsapp_number,
+            'opening_hours' => $openingHours,
+            'services' => $request->services,
+            'pharmacist_id' => $request->pharmacist_id,
+            'is_verified' => $request->has('is_verified') ? $request->is_verified : true,
+            'is_active' => $request->has('is_active') ? $request->is_active : true,
+        ]);
+
+        return redirect()->route('admin.pharmacies')
+            ->with('success', 'Pharmacie créée avec succès !');
+    }
+
+    /**
      * Afficher les détails d'une pharmacie
      */
     public function showPharmacy(Pharmacy $pharmacy)
@@ -390,6 +452,17 @@ class AdminController extends Controller
 
         return redirect()->route('admin.authorization-numbers')
             ->with('success', 'Numéro d\'autorisation mis à jour avec succès.');
+    }
+
+    /**
+     * Basculer la validité d'un numéro d'autorisation
+     */
+    public function toggleAuthorizationNumberValidity(AuthorizationNumber $authorizationNumber)
+    {
+        $authorizationNumber->update(['is_valid' => !$authorizationNumber->is_valid]);
+        
+        $status = $authorizationNumber->is_valid ? 'valide' : 'invalide';
+        return redirect()->back()->with('success', "Numéro d'autorisation marqué comme {$status}.");
     }
 
     /**

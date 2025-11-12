@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Ajouter une pharmacie - GeoPharma')
+@section('title', 'Modifier une pharmacie - GeoPharma')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
@@ -10,25 +10,43 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-4xl font-bold text-white">
-                        <i class="fas fa-plus-circle mr-3"></i>
-                        {{ auth()->user()->role === 'admin' ? 'Créer une pharmacie' : 'Ajouter une pharmacie' }}
+                        <i class="fas fa-edit mr-3"></i>
+                        Modifier une pharmacie
                     </h1>
                     <p class="text-green-100 mt-2 text-lg">
-                        {{ auth()->user()->role === 'admin' ? 'Créez une nouvelle pharmacie pour la plateforme' : 'Remplissez les informations de votre pharmacie pour qu\'elle apparaisse sur la carte.' }}
+                        Mettez à jour les informations de votre pharmacie
                     </p>
                 </div>
                 
-                <a href="{{ auth()->user()->role === 'admin' ? route('admin.pharmacies') : route('pharmacist.dashboard') }}" 
+                <a href="{{ route('pharmacist.dashboard') }}" 
                    class="bg-white text-green-700 px-4 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200 font-medium shadow-md">
                     <i class="fas fa-arrow-left mr-2"></i>Retour
                 </a>
             </div>
         </div>
     </div>
+
+    <!-- Breadcrumb -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav class="flex items-center space-x-2 text-sm">
+                <a href="{{ route('pharmacies.index') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    <i class="fas fa-home mr-1"></i>Accueil
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <a href="{{ route('pharmacist.dashboard') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    Dashboard
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <span class="text-gray-600 font-medium">Modifier pharmacie</span>
+            </nav>
+        </div>
+    </div>
     
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form method="POST" action="{{ auth()->user()->role === 'admin' ? route('admin.pharmacies.store') : route('pharmacist.store-pharmacy') }}" class="space-y-8">
+        <form method="POST" action="{{ route('pharmacist.update-pharmacy', $pharmacy) }}" class="space-y-8" id="pharmacyForm">
             @csrf
+            @method('PUT')
             
             <!-- Informations de base -->
             <div class="bg-white rounded-xl shadow-lg p-8">
@@ -38,29 +56,6 @@
                 </h2>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Pharmacien (pour admin uniquement) -->
-                    @if(auth()->user()->role === 'admin')
-                    <div class="md:col-span-2">
-                        <label for="pharmacist_id" class="block text-sm font-medium text-gray-700 mb-2">
-                            Pharmacien propriétaire *
-                        </label>
-                        <select id="pharmacist_id" 
-                                name="pharmacist_id" 
-                                required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('pharmacist_id') border-red-500 @enderror">
-                            <option value="">Sélectionnez un pharmacien</option>
-                            @foreach($pharmacists ?? [] as $pharmacist)
-                                <option value="{{ $pharmacist->id }}" {{ old('pharmacist_id') == $pharmacist->id ? 'selected' : '' }}>
-                                    {{ $pharmacist->name }} ({{ $pharmacist->email }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('pharmacist_id')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    @endif
-                    
                     <!-- Nom de la pharmacie -->
                     <div class="md:col-span-2">
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
@@ -69,7 +64,7 @@
                         <input type="text" 
                                id="name" 
                                name="name" 
-                               value="{{ old('name') }}"
+                               value="{{ old('name', $pharmacy->name) }}"
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('name') border-red-500 @enderror"
                                placeholder="Ex: Pharmacie du Centre-Ville">
@@ -87,7 +82,7 @@
                                   name="description" 
                                   rows="3"
                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('description') border-red-500 @enderror"
-                                  placeholder="Décrivez votre pharmacie, ses spécialités, etc.">{{ old('description') }}</textarea>
+                                  placeholder="Décrivez votre pharmacie, ses spécialités, etc.">{{ old('description', $pharmacy->description) }}</textarea>
                         @error('description')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -111,7 +106,7 @@
                         <input type="text" 
                                id="address" 
                                name="address" 
-                               value="{{ old('address') }}"
+                               value="{{ old('address', $pharmacy->address) }}"
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('address') border-red-500 @enderror"
                                placeholder="Ex: Avenue Kasa-Vubu, Gombe">
@@ -128,7 +123,7 @@
                         <input type="text" 
                                id="city" 
                                name="city" 
-                               value="{{ old('city') }}"
+                               value="{{ old('city', $pharmacy->city) }}"
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('city') border-red-500 @enderror"
                                placeholder="Ex: Kinshasa">
@@ -145,7 +140,7 @@
                         <input type="text" 
                                id="postal_code" 
                                name="postal_code" 
-                               value="{{ old('postal_code') }}"
+                               value="{{ old('postal_code', $pharmacy->postal_code) }}"
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('postal_code') border-red-500 @enderror"
                                placeholder="Ex: 001">
@@ -164,20 +159,7 @@
                                 required
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('country') border-red-500 @enderror">
                             <option value="">Sélectionnez un pays</option>
-                            <option value="RD Congo" {{ old('country') == 'RD Congo' ? 'selected' : 'selected' }}>RD Congo</option>
-                            <!-- <option value="Congo" {{ old('country') == 'Congo' ? 'selected' : '' }}>Congo</option>
-                            <option value="Angola" {{ old('country') == 'Angola' ? 'selected' : '' }}>Angola</option>
-                            <option value="Rwanda" {{ old('country') == 'Rwanda' ? 'selected' : '' }}>Rwanda</option>
-                            <option value="Burundi" {{ old('country') == 'Burundi' ? 'selected' : '' }}>Burundi</option>
-                            <option value="Ouganda" {{ old('country') == 'Ouganda' ? 'selected' : '' }}>Ouganda</option>
-                            <option value="Tanzanie" {{ old('country') == 'Tanzanie' ? 'selected' : '' }}>Tanzanie</option>
-                            <option value="Zambie" {{ old('country') == 'Zambie' ? 'selected' : '' }}>Zambie</option>
-                            <option value="Cameroun" {{ old('country') == 'Cameroun' ? 'selected' : '' }}>Cameroun</option>
-                            <option value="Gabon" {{ old('country') == 'Gabon' ? 'selected' : '' }}>Gabon</option>
-                            <option value="République Centrafricaine" {{ old('country') == 'République Centrafricaine' ? 'selected' : '' }}>République Centrafricaine</option>
-                            <option value="Tchad" {{ old('country') == 'Tchad' ? 'selected' : '' }}>Tchad</option>
-                            <option value="Soudan" {{ old('country') == 'Soudan' ? 'selected' : '' }}>Soudan</option>
-                            <option value="Soudan du Sud" {{ old('country') == 'Soudan du Sud' ? 'selected' : '' }}>Soudan du Sud</option> -->
+                            <option value="RD Congo" {{ old('country', $pharmacy->country) == 'RD Congo' ? 'selected' : '' }}>RD Congo</option>
                         </select>
                         @error('country')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -196,7 +178,7 @@
                         <div class="bg-gray-100 rounded-lg p-2 mb-2">
                             <p class="text-sm text-gray-600 mb-2">
                                 <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>
-                                <strong>Cliquez sur la carte</strong> pour sélectionner l'emplacement de votre pharmacie
+                                <strong>Cliquez sur la carte</strong> pour modifier l'emplacement de votre pharmacie
                             </p>
                             <div id="location-map" class="w-full h-96 rounded-lg border-2 border-gray-300" style="z-index: 1;"></div>
                         </div>
@@ -231,7 +213,7 @@
                                    id="latitude" 
                                    name="latitude" 
                                    step="any"
-                                   value="{{ old('latitude') }}"
+                                   value="{{ old('latitude', $pharmacy->latitude) }}"
                                    required
                                    readonly
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('latitude') border-red-500 @enderror"
@@ -246,7 +228,7 @@
                                    id="longitude" 
                                    name="longitude" 
                                    step="any"
-                                   value="{{ old('longitude') }}"
+                                   value="{{ old('longitude', $pharmacy->longitude) }}"
                                    required
                                    readonly
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('longitude') border-red-500 @enderror"
@@ -280,7 +262,7 @@
                         <input type="tel" 
                                id="phone" 
                                name="phone" 
-                               value="{{ old('phone') }}"
+                               value="{{ old('phone', $pharmacy->phone) }}"
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('phone') border-red-500 @enderror"
                                placeholder="Ex: +243 999 123 456">
@@ -297,7 +279,7 @@
                         <input type="email" 
                                id="email" 
                                name="email" 
-                               value="{{ old('email') }}"
+                               value="{{ old('email', $pharmacy->email) }}"
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('email') border-red-500 @enderror"
                                placeholder="Ex: contact@pharmacie.cd">
                         @error('email')
@@ -313,7 +295,7 @@
                         <input type="tel" 
                                id="whatsapp_number" 
                                name="whatsapp_number" 
-                               value="{{ old('whatsapp_number') }}"
+                               value="{{ old('whatsapp_number', $pharmacy->whatsapp_number) }}"
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('whatsapp_number') border-red-500 @enderror"
                                placeholder="Ex: +243 999 123 456">
                         <p class="mt-2 text-sm text-gray-500">
@@ -349,47 +331,61 @@
                             'samedi' => 'Samedi',
                             'dimanche' => 'Dimanche'
                         ];
+                        $existingHours = is_array($pharmacy->opening_hours) ? $pharmacy->opening_hours : [];
                     @endphp
                     
                     @foreach($days as $dayKey => $dayName)
-                        <div class="border border-gray-200 rounded-lg p-4 day-hours-row" data-day="{{ $dayKey }}">
+                        @php
+                            $dayData = $existingHours[$dayKey] ?? null;
+                            $isOpen = $dayData !== null;
+                            $isSeparated = $isOpen && (isset($dayData['morning']) || isset($dayData['afternoon']));
+                            $simpleStart = $isOpen && !$isSeparated ? ($dayData['start'] ?? '08:00') : '08:00';
+                            $simpleEnd = $isOpen && !$isSeparated ? ($dayData['end'] ?? '18:00') : '18:00';
+                            $morningStart = $isSeparated ? ($dayData['morning']['start'] ?? '08:00') : '08:00';
+                            $morningEnd = $isSeparated ? ($dayData['morning']['end'] ?? '12:00') : '12:00';
+                            $afternoonStart = $isSeparated ? ($dayData['afternoon']['start'] ?? '14:00') : '14:00';
+                            $afternoonEnd = $isSeparated ? ($dayData['afternoon']['end'] ?? '18:00') : '18:00';
+                        @endphp
+                        <div class="border border-gray-200 rounded-lg p-4 day-hours-row {{ !$isOpen ? 'opacity-50' : '' }}" data-day="{{ $dayKey }}">
                             <div class="flex items-center justify-between mb-3">
                                 <label class="flex items-center cursor-pointer">
                                     <input type="checkbox" 
                                            class="day-open-checkbox mr-2" 
                                            data-day="{{ $dayKey }}"
-                                           checked>
+                                           {{ $isOpen ? 'checked' : '' }}>
                                     <span class="font-semibold text-gray-700">{{ $dayName }}</span>
                                 </label>
                                 <button type="button" 
                                         class="text-sm text-green-600 hover:text-green-800 toggle-hours-type"
                                         data-day="{{ $dayKey }}">
-                                    <i class="fas fa-exchange-alt mr-1"></i>Horaires séparés
+                                    <i class="fas fa-exchange-alt mr-1"></i>{{ $isSeparated ? 'Horaires simples' : 'Horaires séparés' }}
                                 </button>
                             </div>
                             
                             <!-- Mode simple (un seul créneau) -->
-                            <div class="simple-hours" data-day="{{ $dayKey }}">
+                            <div class="simple-hours {{ $isSeparated ? 'hidden' : '' }}" data-day="{{ $dayKey }}">
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-xs text-gray-500 mb-1">Heure d'ouverture</label>
                                         <input type="time" 
                                                name="opening_hours[{{ $dayKey }}][start]" 
                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                               value="08:00">
+                                               value="{{ old("opening_hours.{$dayKey}.start", $simpleStart) }}"
+                                               {{ !$isOpen ? 'disabled' : '' }}>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-gray-500 mb-1">Heure de fermeture</label>
                                         <input type="time" 
                                                name="opening_hours[{{ $dayKey }}][end]" 
                                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                               value="18:00">
+                                               value="{{ old("opening_hours.{$dayKey}.end", $simpleEnd) }}"
+                                               {{ !$isOpen ? 'disabled' : '' }}>
                                     </div>
                                 </div>
                             </div>
                             
                             <!-- Mode séparé (matin et après-midi) -->
-                            <div class="separated-hours hidden" data-day="{{ $dayKey }}">
+                            <div class="separated-hours {{ !$isSeparated ? 'hidden' : '' }}" data-day="{{ $dayKey }}">
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label class="block text-xs text-gray-500 mb-2 font-medium">Matin</label>
@@ -399,14 +395,16 @@
                                                 <input type="time" 
                                                        name="opening_hours[{{ $dayKey }}][morning][start]" 
                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                       value="08:00">
+                                                       value="{{ old("opening_hours.{$dayKey}.morning.start", $morningStart) }}"
+                                                       {{ !$isOpen ? 'disabled' : '' }}>
                                             </div>
                                             <div>
                                                 <label class="block text-xs text-gray-400 mb-1">Fermeture</label>
                                                 <input type="time" 
                                                        name="opening_hours[{{ $dayKey }}][morning][end]" 
                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                       value="12:00">
+                                                       value="{{ old("opening_hours.{$dayKey}.morning.end", $morningEnd) }}"
+                                                       {{ !$isOpen ? 'disabled' : '' }}>
                                             </div>
                                         </div>
                                     </div>
@@ -418,14 +416,16 @@
                                                 <input type="time" 
                                                        name="opening_hours[{{ $dayKey }}][afternoon][start]" 
                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                       value="14:00">
+                                                       value="{{ old("opening_hours.{$dayKey}.afternoon.start", $afternoonStart) }}"
+                                                       {{ !$isOpen ? 'disabled' : '' }}>
                                             </div>
                                             <div>
                                                 <label class="block text-xs text-gray-400 mb-1">Fermeture</label>
                                                 <input type="time" 
                                                        name="opening_hours[{{ $dayKey }}][afternoon][end]" 
                                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                                       value="18:00">
+                                                       value="{{ old("opening_hours.{$dayKey}.afternoon.end", $afternoonEnd) }}"
+                                                       {{ !$isOpen ? 'disabled' : '' }}>
                                             </div>
                                         </div>
                                     </div>
@@ -443,84 +443,52 @@
                     Services proposés
                 </h2>
                 
+                @php
+                    $existingServices = is_array($pharmacy->services) ? $pharmacy->services : [];
+                @endphp
+                
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                        <input type="checkbox" name="services[]" value="Livraison à domicile" class="mr-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ in_array('Livraison à domicile', $existingServices) ? 'bg-green-50 border-green-300' : '' }}">
+                        <input type="checkbox" name="services[]" value="Livraison à domicile" class="mr-3" {{ in_array('Livraison à domicile', old('services', $existingServices)) ? 'checked' : '' }}>
                         <span class="text-sm font-medium">Livraison à domicile</span>
                     </label>
                     
-                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                        <input type="checkbox" name="services[]" value="Pharmacie de garde" class="mr-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ in_array('Pharmacie de garde', $existingServices) ? 'bg-green-50 border-green-300' : '' }}">
+                        <input type="checkbox" name="services[]" value="Pharmacie de garde" class="mr-3" {{ in_array('Pharmacie de garde', old('services', $existingServices)) ? 'checked' : '' }}>
                         <span class="text-sm font-medium">Pharmacie de garde</span>
                     </label>
                     
-                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                        <input type="checkbox" name="services[]" value="Conseil pharmaceutique" class="mr-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ in_array('Conseil pharmaceutique', $existingServices) ? 'bg-green-50 border-green-300' : '' }}">
+                        <input type="checkbox" name="services[]" value="Conseil pharmaceutique" class="mr-3" {{ in_array('Conseil pharmaceutique', old('services', $existingServices)) ? 'checked' : '' }}>
                         <span class="text-sm font-medium">Conseil pharmaceutique</span>
                     </label>
                     
-                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                        <input type="checkbox" name="services[]" value="Préparation magistrale" class="mr-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ in_array('Préparation magistrale', $existingServices) ? 'bg-green-50 border-green-300' : '' }}">
+                        <input type="checkbox" name="services[]" value="Préparation magistrale" class="mr-3" {{ in_array('Préparation magistrale', old('services', $existingServices)) ? 'checked' : '' }}>
                         <span class="text-sm font-medium">Préparation magistrale</span>
                     </label>
                     
-                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                        <input type="checkbox" name="services[]" value="Vaccination" class="mr-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ in_array('Vaccination', $existingServices) ? 'bg-green-50 border-green-300' : '' }}">
+                        <input type="checkbox" name="services[]" value="Vaccination" class="mr-3" {{ in_array('Vaccination', old('services', $existingServices)) ? 'checked' : '' }}>
                         <span class="text-sm font-medium">Vaccination</span>
                     </label>
                     
-                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                        <input type="checkbox" name="services[]" value="Mesure tension" class="mr-3">
+                    <label class="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 {{ in_array('Mesure tension', $existingServices) ? 'bg-green-50 border-green-300' : '' }}">
+                        <input type="checkbox" name="services[]" value="Mesure tension" class="mr-3" {{ in_array('Mesure tension', old('services', $existingServices)) ? 'checked' : '' }}>
                         <span class="text-sm font-medium">Mesure tension</span>
                     </label>
                 </div>
             </div>
             
-            <!-- Options administratives (pour admin uniquement) -->
-            @if(auth()->user()->role === 'admin')
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">
-                    <i class="fas fa-cog text-blue-500 mr-2"></i>
-                    Options administratives
-                </h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="flex items-center">
-                        <input type="checkbox" 
-                               id="is_verified" 
-                               name="is_verified" 
-                               value="1"
-                               {{ old('is_verified', true) ? 'checked' : '' }}
-                               class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                        <label for="is_verified" class="ml-3 text-sm font-medium text-gray-700">
-                            Pharmacie vérifiée
-                        </label>
-                    </div>
-                    
-                    <div class="flex items-center">
-                        <input type="checkbox" 
-                               id="is_active" 
-                               name="is_active" 
-                               value="1"
-                               {{ old('is_active', true) ? 'checked' : '' }}
-                               class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500">
-                        <label for="is_active" class="ml-3 text-sm font-medium text-gray-700">
-                            Pharmacie active
-                        </label>
-                    </div>
-                </div>
-            </div>
-            @endif
-            
             <!-- Submit Button -->
             <div class="flex items-center justify-end space-x-4">
-                <a href="{{ auth()->user()->role === 'admin' ? route('admin.pharmacies') : route('pharmacist.dashboard') }}" 
+                <a href="{{ route('pharmacist.dashboard') }}" 
                    class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors duration-200">
                     Annuler
                 </a>
                 <button type="submit" 
-                        class="btn-primary text-white px-8 py-3 rounded-lg font-medium">
-                    <i class="fas fa-save mr-2"></i>Créer la pharmacie
+                        class="bg-green-500 text-white px-8 py-3 rounded-lg hover:bg-green-600 transition-colors duration-200 font-medium">
+                    <i class="fas fa-save mr-2"></i>Mettre à jour la pharmacie
                 </button>
             </div>
         </form>
@@ -603,22 +571,19 @@ let selectedLocation = null;
 document.addEventListener('DOMContentLoaded', function() {
     initMap();
     
-    // Si des coordonnées existent déjà (old values), les utiliser
-    const lat = document.getElementById('latitude').value;
-    const lng = document.getElementById('longitude').value;
-    if (lat && lng) {
-        const latNum = parseFloat(lat);
-        const lngNum = parseFloat(lng);
-        if (!isNaN(latNum) && !isNaN(lngNum)) {
-            setMapLocation(latNum, lngNum);
-        }
-    }
+    // Utiliser les coordonnées existantes de la pharmacie
+    const lat = parseFloat(document.getElementById('latitude').value) || -4.3276;
+    const lng = parseFloat(document.getElementById('longitude').value) || 15.3136;
+    setMapLocation(lat, lng);
 });
 
 // Initialiser la carte Leaflet
 function initMap() {
-    // Centrer sur Kinshasa par défaut
-    map = L.map('location-map').setView([-4.3276, 15.3136], 13);
+    // Centrer sur les coordonnées de la pharmacie ou Kinshasa par défaut
+    const lat = parseFloat(document.getElementById('latitude').value) || -4.3276;
+    const lng = parseFloat(document.getElementById('longitude').value) || 15.3136;
+    
+    map = L.map('location-map').setView([lat, lng], 13);
     
     // Ajouter les tuiles OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -630,20 +595,6 @@ function initMap() {
     map.on('click', function(e) {
         setMapLocation(e.latlng.lat, e.latlng.lng);
     });
-    
-    // Ajouter un marqueur par défaut au centre
-    marker = L.marker([-4.3276, 15.3136], {
-        draggable: true
-    }).addTo(map);
-    
-    // Mettre à jour les coordonnées quand on déplace le marqueur
-    marker.on('dragend', function(e) {
-        const position = marker.getLatLng();
-        updateCoordinates(position.lat, position.lng);
-    });
-    
-    // Popup initial
-    marker.bindPopup('Cliquez sur la carte ou déplacez ce marqueur pour sélectionner l\'emplacement').openPopup();
 }
 
 // Définir l'emplacement sur la carte
@@ -687,8 +638,6 @@ function getCurrentLocation() {
                 const lat = position.coords.latitude;
                 const lng = position.coords.longitude;
                 setMapLocation(lat, lng);
-                
-                // Afficher un message de succès
                 showMessage('Position actuelle récupérée avec succès !', 'success');
             },
             function(error) {
@@ -708,7 +657,6 @@ async function searchAddressOnMap() {
     const country = document.getElementById('country').value || 'RD Congo';
     
     if (!address || !city) {
-        // Ouvrir le modal de recherche
         openSearchModal();
         return;
     }
@@ -787,11 +735,9 @@ function showModal(title, message, type = 'info', showOk = true) {
     const cancelBtn = document.getElementById('modal-cancel-btn');
     const confirmBtn = document.getElementById('modal-confirm-btn');
     
-    // Définir le titre et le message
     modalTitle.textContent = title;
     modalMessage.textContent = message;
     
-    // Définir l'icône selon le type
     let iconClass, iconColor;
     switch(type) {
         case 'success':
@@ -813,12 +759,10 @@ function showModal(title, message, type = 'info', showOk = true) {
     
     modalIcon.className = `fas ${iconClass} text-3xl mr-3 ${iconColor}`;
     
-    // Afficher/masquer les boutons
     okBtn.classList.toggle('hidden', !showOk);
     cancelBtn.classList.add('hidden');
     confirmBtn.classList.add('hidden');
     
-    // Afficher le modal
     overlay.classList.remove('hidden');
 }
 
@@ -828,7 +772,7 @@ function closeModal() {
     modalCallback = null;
 }
 
-// Confirmer dans le modal (pour les modals de confirmation)
+// Confirmer dans le modal
 function confirmModal() {
     if (modalCallback) {
         modalCallback();
@@ -838,7 +782,6 @@ function confirmModal() {
 
 // Afficher un message temporaire (toast)
 function showMessage(message, type = 'info') {
-    // Créer un élément de message
     const messageDiv = document.createElement('div');
     messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transform transition-all ${
         type === 'success' ? 'bg-green-500' : 
@@ -849,12 +792,10 @@ function showMessage(message, type = 'info') {
     
     document.body.appendChild(messageDiv);
     
-    // Animation d'entrée
     setTimeout(() => {
         messageDiv.style.transform = 'translateX(0)';
     }, 10);
     
-    // Retirer le message après 3 secondes
     setTimeout(() => {
         messageDiv.style.transition = 'opacity 0.5s, transform 0.5s';
         messageDiv.style.opacity = '0';
@@ -867,9 +808,8 @@ function showMessage(message, type = 'info') {
     }, 3000);
 }
 
-// Validation du formulaire et initialisation des modals
+// Initialisation des modals
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialisation des modals
     document.getElementById('modal-overlay').addEventListener('click', function(e) {
         if (e.target === this) {
             closeModal();
@@ -882,7 +822,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Fermer avec la touche Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeModal();
@@ -890,7 +829,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Entrée dans le champ de recherche
     document.getElementById('search-address-input').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             performAddressSearch();
@@ -898,7 +836,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Validation du formulaire
-    const form = document.querySelector('form');
+    const form = document.getElementById('pharmacyForm');
     
     form.addEventListener('submit', function(e) {
         const latitude = document.getElementById('latitude').value;
@@ -906,23 +844,22 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!latitude || !longitude) {
             e.preventDefault();
-            showModal('Emplacement requis', 'Veuillez sélectionner un emplacement sur la carte avant de soumettre le formulaire. Cliquez sur la carte pour choisir l\'emplacement de votre pharmacie.', 'error');
+            showModal('Emplacement requis', 'Veuillez sélectionner un emplacement sur la carte avant de soumettre le formulaire.', 'error');
             return false;
         }
         
-        // Vérifier que les coordonnées sont dans des plages valides
         const latNum = parseFloat(latitude);
         const lngNum = parseFloat(longitude);
         
         if (isNaN(latNum) || latNum < -90 || latNum > 90) {
             e.preventDefault();
-            showModal('Coordonnées invalides', 'La latitude doit être comprise entre -90 et 90. Veuillez sélectionner un emplacement valide sur la carte.', 'error');
+            showModal('Coordonnées invalides', 'La latitude doit être comprise entre -90 et 90.', 'error');
             return false;
         }
         
         if (isNaN(lngNum) || lngNum < -180 || lngNum > 180) {
             e.preventDefault();
-            showModal('Coordonnées invalides', 'La longitude doit être comprise entre -180 et 180. Veuillez sélectionner un emplacement valide sur la carte.', 'error');
+            showModal('Coordonnées invalides', 'La longitude doit être comprise entre -180 et 180.', 'error');
             return false;
         }
         
@@ -932,6 +869,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Gestion des horaires d'ouverture
     initOpeningHours();
+    
+    // Afficher les messages flash
+    @if(session('success'))
+        showMessage('{{ session('success') }}', 'success');
+    @endif
+    
+    @if(session('error'))
+        showMessage('{{ session('error') }}', 'error');
+    @endif
 });
 
 // Initialiser la gestion des horaires
@@ -1062,3 +1008,4 @@ function formatOpeningHours() {
 }
 </style>
 @endpush
+

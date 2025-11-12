@@ -155,9 +155,21 @@
                 
                 <!-- Navigation Links -->
                 <div class="d-none d-md-flex align-items-center">
-                    <a href="{{ route('home') }}" class="text-decoration-none me-4 px-2 py-1 nav-link-soft">
-                        <i class="fas fa-home me-2"></i>Accueil
-                    </a>
+                    @auth
+                        @if(auth()->user()->role === 'user')
+                            <a href="{{ route('pharmacies.index') }}" class="text-decoration-none me-4 px-2 py-1 nav-link-soft">
+                                <i class="fas fa-home me-2"></i>Accueil
+                            </a>
+                        @else
+                            <a href="{{ route('home') }}" class="text-decoration-none me-4 px-2 py-1 nav-link-soft">
+                                <i class="fas fa-home me-2"></i>Accueil
+                            </a>
+                        @endif
+                    @else
+                        <a href="{{ route('home') }}" class="text-decoration-none me-4 px-2 py-1 nav-link-soft">
+                            <i class="fas fa-home me-2"></i>Accueil
+                        </a>
+                    @endauth
                     <a href="{{ route('pharmacies.index') }}" class="text-decoration-none me-4 px-2 py-1 nav-link-soft">
                         <i class="fas fa-map-marker-alt me-2"></i>Pharmacies
                     </a>

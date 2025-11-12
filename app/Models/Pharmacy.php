@@ -89,7 +89,37 @@ class Pharmacy extends Model
     public function getWhatsappUrlAttribute()
     {
         if ($this->whatsapp_number) {
-            return "https://wa.me/" . preg_replace('/[^0-9]/', '', $this->whatsapp_number);
+            $phone = preg_replace('/[^0-9]/', '', $this->whatsapp_number);
+            $message = $this->getPredefinedMessage();
+            return "https://wa.me/" . $phone . "?text=" . urlencode($message);
+        }
+        return null;
+    }
+
+    /**
+     * Obtenir le message prédéfini pour le contact
+     */
+    public function getPredefinedMessage()
+    {
+        $hour = (int) date('H');
+        $greeting = ($hour >= 18 || $hour < 6) ? 'Bonsoir' : 'Bonjour';
+        
+        $userName = auth()->check() ? auth()->user()->name : 'un utilisateur';
+        
+        $message = "{$greeting} {$this->name}, je suis {$userName} depuis l'application GeoPharma. Je souhaite obtenir des informations sur vos services et vos horaires d'ouverture. Pourriez-vous me renseigner ?";
+        
+        return $message;
+    }
+
+    /**
+     * Obtenir l'URL email avec message prédéfini
+     */
+    public function getEmailUrlAttribute()
+    {
+        if ($this->email) {
+            $subject = "Contact depuis GeoPharma";
+            $message = $this->getPredefinedMessage();
+            return "mailto:" . $this->email . "?subject=" . urlencode($subject) . "&body=" . urlencode($message);
         }
         return null;
     }

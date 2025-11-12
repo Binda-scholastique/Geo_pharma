@@ -98,7 +98,7 @@
                 </div>
 
                 <!-- Préférences d'affichage -->
-                <div class="bg-white rounded-xl shadow-lg p-8">
+                <!-- <div class="bg-white rounded-xl shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">
                         <i class="fas fa-palette mr-2 text-green-500"></i>Préférences d'Affichage
                     </h2>
@@ -147,10 +147,10 @@
                             </button>
                         </div>
                     </form>
-                </div>
+                </div> -->
 
                 <!-- Sécurité -->
-                <div class="bg-white rounded-xl shadow-lg p-8">
+                <!-- <div class="bg-white rounded-xl shadow-lg p-8">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">
                         <i class="fas fa-shield-alt mr-2 text-green-500"></i>Sécurité
                     </h2>
@@ -186,13 +186,13 @@
                             </button>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
 
             <!-- Sidebar -->
             <div class="space-y-6">
                 <!-- Navigation -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
+                <!-- <div class="bg-white rounded-xl shadow-lg p-6">
                     <h3 class="text-lg font-bold text-gray-800 mb-4">
                         <i class="fas fa-cog mr-2 text-green-500"></i>Paramètres
                     </h3>
@@ -211,7 +211,7 @@
                             Sécurité
                         </a>
                     </nav>
-                </div>
+                </div> -->
 
                 <!-- Actions rapides -->
                 <div class="bg-white rounded-xl shadow-lg p-6">

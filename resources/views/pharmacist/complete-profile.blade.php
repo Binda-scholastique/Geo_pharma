@@ -62,7 +62,7 @@
                         <input id="city" name="city" type="text" required 
                                value="{{ old('city') }}"
                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm @error('city') border-red-500 @enderror"
-                               placeholder="Paris">
+                               placeholder="Kinshasa">
                     </div>
                     @error('city')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
@@ -78,7 +78,7 @@
                         <input id="postal_code" name="postal_code" type="text" required 
                                value="{{ old('postal_code') }}"
                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm @error('postal_code') border-red-500 @enderror"
-                               placeholder="75001">
+                               placeholder="001">
                     </div>
                     @error('postal_code')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>

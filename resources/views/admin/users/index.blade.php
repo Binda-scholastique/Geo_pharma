@@ -3,214 +3,204 @@
 @section('title', 'Gestion des Utilisateurs - Administration')
 
 @section('content')
-<div class="container-fluid" style="background-color: #f8f9fa; min-height: 100vh;">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center py-4 px-4 mb-4 bg-white shadow-sm">
-        <div>
-            <h1 class="h3 mb-0" style="color: #495057;">
-                <i class="fas fa-users me-2" style="color: #10b981;"></i>
-                Gestion des Utilisateurs
-            </h1>
-            <p class="text-muted mb-0">Gérez tous les utilisateurs de la plateforme</p>
-        </div>
-        <a href="{{ route('admin.users.create') }}" class="btn btn-success">
-            <i class="fas fa-plus me-2"></i>
-            Nouvel Utilisateur
-        </a>
-    </div>
-
-    <!-- Statistiques -->
-    <div class="row mb-4 px-4">
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-primary border-3 shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col me-2">
-                            <div class="small fw-bold text-primary text-uppercase mb-1">
-                                Total Utilisateurs
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-dark">{{ $users->total() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-muted"></i>
-                        </div>
-                    </div>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
+    <!-- Header avec gradient -->
+    <div class="bg-gradient-to-r from-green-600 to-green-700 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">
+                        <i class="fas fa-users mr-3"></i>
+                        Gestion des Utilisateurs
+                    </h1>
+                    <p class="text-green-100 mt-2 text-lg">Gérez tous les utilisateurs de la plateforme</p>
                 </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-success border-3 shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col me-2">
-                            <div class="small fw-bold text-success text-uppercase mb-1">
-                                Pharmaciens
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-dark">{{ $users->where('role', 'pharmacist')->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user-md fa-2x text-muted"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-info border-3 shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col me-2">
-                            <div class="small fw-bold text-info text-uppercase mb-1">
-                                Utilisateurs Normaux
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-dark">{{ $users->where('role', 'user')->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-user fa-2x text-muted"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-start border-warning border-3 shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col me-2">
-                            <div class="small fw-bold text-warning text-uppercase mb-1">
-                                Profils Incomplets
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-dark">{{ $users->where('profile_completed', false)->count() }}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-exclamation-triangle fa-2x text-muted"></i>
-                        </div>
-                    </div>
-                </div>
+                <a href="{{ route('admin.users.create') }}" class="bg-white bg-opacity-20 text-white px-6 py-3 rounded-lg hover:bg-opacity-30 transition-colors duration-200 flex items-center">
+                    <i class="fas fa-plus mr-2"></i>Nouvel Utilisateur
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Filtres et Recherche -->
-    <div class="card shadow mb-4 mx-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 fw-bold text-primary">
-                <i class="fas fa-filter me-2"></i>
-                Filtres et Recherche
-            </h6>
+    <!-- Breadcrumb -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav class="flex items-center space-x-2 text-sm">
+                <a href="{{ route('home') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    <i class="fas fa-home mr-1"></i>Accueil
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <a href="{{ route('admin.dashboard') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    Administration
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <span class="text-gray-600 font-medium">Utilisateurs</span>
+            </nav>
         </div>
-        <div class="card-body">
-            <form method="GET" action="{{ route('admin.users') }}" class="row">
-                <div class="col-md-4 mb-3">
-                    <label for="search" class="form-label">Rechercher</label>
-                    <input type="text" class="form-control" id="search" name="search" 
-                           value="{{ request('search') }}" placeholder="Nom, email...">
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Statistiques -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between border-l-4 border-blue-500 hover:shadow-xl transition-shadow duration-300">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Total Utilisateurs</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ $users->total() }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Tous les comptes</p>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label for="role" class="form-label">Rôle</label>
-                    <select class="form-control" id="role" name="role">
+                <div class="bg-blue-100 p-3 rounded-full">
+                    <i class="fas fa-users text-blue-600 text-2xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between border-l-4 border-green-500 hover:shadow-xl transition-shadow duration-300">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Pharmaciens</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ $users->where('role', 'pharmacist')->count() }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Sur la plateforme</p>
+                </div>
+                <div class="bg-green-100 p-3 rounded-full">
+                    <i class="fas fa-user-md text-green-600 text-2xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between border-l-4 border-purple-500 hover:shadow-xl transition-shadow duration-300">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Utilisateurs Normaux</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ $users->where('role', 'user')->count() }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Comptes standards</p>
+                </div>
+                <div class="bg-purple-100 p-3 rounded-full">
+                    <i class="fas fa-user text-purple-600 text-2xl"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6 flex items-center justify-between border-l-4 border-yellow-500 hover:shadow-xl transition-shadow duration-300">
+                <div>
+                    <p class="text-gray-500 text-sm font-medium">Profils Incomplets</p>
+                    <p class="text-3xl font-bold text-gray-900">{{ $users->where('profile_completed', false)->count() }}</p>
+                    <p class="text-xs text-gray-500 mt-1">À compléter</p>
+                </div>
+                <div class="bg-yellow-100 p-3 rounded-full">
+                    <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtres et Recherche -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">
+                <i class="fas fa-filter text-green-500 mr-2"></i>Filtres et Recherche
+            </h3>
+            <form method="GET" action="{{ route('admin.users') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Rechercher</label>
+                    <input type="text" id="search" name="search" 
+                           value="{{ request('search') }}" 
+                           placeholder="Nom, email..."
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                </div>
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700 mb-2">Rôle</label>
+                    <select id="role" name="role" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         <option value="">Tous les rôles</option>
                         <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>Utilisateur</option>
                         <option value="pharmacist" {{ request('role') == 'pharmacist' ? 'selected' : '' }}>Pharmacien</option>
                         <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Administrateur</option>
                     </select>
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label for="status" class="form-label">Statut</label>
-                    <select class="form-control" id="status" name="status">
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Statut</label>
+                    <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
                         <option value="">Tous les statuts</option>
                         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Profil complet</option>
                         <option value="incomplete" {{ request('status') == 'incomplete' ? 'selected' : '' }}>Profil incomplet</option>
                     </select>
                 </div>
-                <div class="col-md-2 mb-3 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-search mr-1"></i>
-                        Filtrer
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200 flex items-center justify-center">
+                        <i class="fas fa-search mr-2"></i>Filtrer
                     </button>
                 </div>
             </form>
         </div>
-    </div>
 
-    <!-- Liste des Utilisateurs -->
-    <div class="card shadow mb-4 mx-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 fw-bold text-primary">
-                <i class="fas fa-list me-2"></i>
-                Liste des Utilisateurs
-            </h6>
-            <span class="badge badge-primary">{{ $users->total() }} utilisateur(s)</span>
-        </div>
-        <div class="card-body">
+        <!-- Liste des Utilisateurs -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-list text-green-500 mr-2"></i>Liste des Utilisateurs
+                </h3>
+                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">{{ $users->total() }} utilisateur(s)</span>
+            </div>
+            
             @if($users->count() > 0)
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
                             <tr>
-                                <th>ID</th>
-                                <th>Nom</th>
-                                <th>Email</th>
-                                <th>Rôle</th>
-                                <th>Statut</th>
-                                <th>Date d'inscription</th>
-                                <th>Actions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rôle</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date d'inscription</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="bg-white divide-y divide-gray-200">
                             @foreach($users as $user)
-                            <tr>
-                                <td>{{ $user->id }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2">
-                                            {{ substr($user->name, 0, 1) }}
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $user->id }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <div class="h-10 w-10 rounded-full bg-green-500 text-white flex items-center justify-center font-semibold">
+                                                {{ substr($user->name, 0, 1) }}
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div class="fw-bold">{{ $user->name }}</div>
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
                                             @if($user->authorization_number)
-                                                <small class="text-muted">Auth: {{ $user->authorization_number }}</small>
+                                                <div class="text-sm text-gray-500">Auth: {{ $user->authorization_number }}</div>
                                             @endif
                                         </div>
                                     </div>
                                 </td>
-                                <td>{{ $user->email }}</td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->email }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     @if($user->role === 'admin')
-                                        <span class="badge badge-danger">Administrateur</span>
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Administrateur</span>
                                     @elseif($user->role === 'pharmacist')
-                                        <span class="badge badge-success">Pharmacien</span>
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Pharmacien</span>
                                     @else
-                                        <span class="badge badge-info">Utilisateur</span>
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Utilisateur</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="px-6 py-4 whitespace-nowrap">
                                     @if($user->profile_completed)
-                                        <span class="badge badge-success">Complet</span>
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Complet</span>
                                     @else
-                                        <span class="badge badge-warning">Incomplet</span>
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Incomplet</span>
                                     @endif
                                 </td>
-                                <td>{{ $user->created_at->format('d/m/Y H:i') }}</td>
-                                <td>
-                                    <div class="btn-group" role="group">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex items-center space-x-2">
                                         <a href="{{ route('admin.users.show', $user) }}" 
-                                           class="btn btn-sm btn-info" title="Voir">
+                                           class="text-blue-600 hover:text-blue-900 transition-colors" title="Voir">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <a href="{{ route('admin.users.edit', $user) }}" 
-                                           class="btn btn-sm btn-warning" title="Modifier">
+                                           class="text-yellow-600 hover:text-yellow-900 transition-colors" title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <form action="{{ route('admin.users.destroy', $user) }}" 
-                                              method="POST" class="d-inline"
+                                              method="POST" class="inline"
                                               onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Supprimer">
+                                            <button type="submit" class="text-red-600 hover:text-red-900 transition-colors" title="Supprimer">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
@@ -223,17 +213,16 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="d-flex justify-content-center">
+                <div class="px-6 py-4 border-t border-gray-200">
                     {{ $users->appends(request()->query())->links() }}
                 </div>
             @else
-                <div class="text-center py-5">
-                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                    <h5 class="text-secondary">Aucun utilisateur trouvé</h5>
-                    <p class="text-muted">Aucun utilisateur ne correspond à vos critères de recherche.</p>
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-success">
-                        <i class="fas fa-plus me-2"></i>
-                        Créer le premier utilisateur
+                <div class="text-center py-12">
+                    <i class="fas fa-users text-gray-300 text-6xl mb-4"></i>
+                    <h5 class="text-gray-500 text-lg font-medium mb-2">Aucun utilisateur trouvé</h5>
+                    <p class="text-gray-400 mb-6">Aucun utilisateur ne correspond à vos critères de recherche.</p>
+                    <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                        <i class="fas fa-plus mr-2"></i>Créer le premier utilisateur
                     </a>
                 </div>
             @endif
@@ -241,41 +230,3 @@
     </div>
 </div>
 @endsection
-
-@push('styles')
-<style>
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
-}
-
-.border-start border-primary border-3 {
-    border-left: 0.25rem solid #4e73df !important;
-}
-
-.border-start border-success border-3 {
-    border-left: 0.25rem solid #1cc88a !important;
-}
-
-.border-start border-info border-3 {
-    border-left: 0.25rem solid #36b9cc !important;
-}
-
-.border-start border-warning border-3 {
-    border-left: 0.25rem solid #f6c23e !important;
-}
-
-.card {
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
-}
-
-.btn-group .btn {
-    margin-right: 2px;
-}
-
-.btn-group .btn:last-child {
-    margin-right: 0;
-}
-</style>
-@endpush

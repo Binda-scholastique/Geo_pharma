@@ -3,175 +3,170 @@
 @section('title', 'Détails Pharmacie - Administration')
 
 @section('content')
-<div class="container-fluid py-4">
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">
-                <i class="fas fa-store text-green-600 mr-2"></i>
-                Détails de la pharmacie
-            </h1>
-            <p class="text-muted mb-0">Informations complètes sur {{ $pharmacy->name }}</p>
-        </div>
-        <div>
-            <a href="{{ route('admin.pharmacies.edit', $pharmacy) }}" class="btn btn-warning me-2">
-                <i class="fas fa-edit mr-2"></i>
-                Modifier
-            </a>
-            <a href="{{ route('admin.pharmacies') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left mr-2"></i>
-                Retour à la liste
-            </a>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-green-50">
+    <!-- Header avec gradient -->
+    <div class="bg-gradient-to-r from-green-600 to-green-700 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-4xl font-bold text-white">
+                        <i class="fas fa-store mr-3"></i>
+                        Détails de la pharmacie
+                    </h1>
+                    <p class="text-green-100 mt-2 text-lg">Informations complètes sur {{ $pharmacy->name }}</p>
+                </div>
+                <div class="flex space-x-3">
+                    <a href="{{ route('admin.pharmacies.edit', $pharmacy) }}" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-200">
+                        <i class="fas fa-edit mr-2"></i>Modifier
+                    </a>
+                    <a href="{{ route('admin.pharmacies') }}" class="bg-white text-green-700 px-4 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200 font-medium shadow-md">
+                        <i class="fas fa-arrow-left mr-2"></i>Retour
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Informations principales -->
-        <div class="col-lg-8">
-            <!-- Informations générales -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-info-circle mr-2"></i>
-                        Informations générales
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label font-weight-bold">Nom de la pharmacie</label>
-                            <p class="form-control-plaintext">{{ $pharmacy->name }}</p>
+    <!-- Breadcrumb -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav class="flex items-center space-x-2 text-sm">
+                <a href="{{ route('home') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    <i class="fas fa-home mr-1"></i>Accueil
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <a href="{{ route('admin.dashboard') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    Administration
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <a href="{{ route('admin.pharmacies') }}" class="text-green-600 hover:text-green-800 transition-colors">
+                    Pharmacies
+                </a>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+                <span class="text-gray-600 font-medium">{{ $pharmacy->name }}</span>
+            </nav>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Informations principales -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Informations générales -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-info-circle text-green-500 mr-2"></i>Informations générales
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Nom de la pharmacie</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ $pharmacy->name }}</p>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label font-weight-bold">Statut</label>
-                            <p class="form-control-plaintext">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Statut</label>
+                            <p>
                                 @if($pharmacy->is_active)
-                                    <span class="badge badge-success">Active</span>
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Active</span>
                                 @else
-                                    <span class="badge badge-danger">Inactive</span>
+                                    <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">Inactive</span>
                                 @endif
                             </p>
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label font-weight-bold">Vérification</label>
-                            <p class="form-control-plaintext">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Vérification</label>
+                            <p>
                                 @if($pharmacy->is_verified)
-                                    <span class="badge badge-success">Vérifiée</span>
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Vérifiée</span>
                                 @else
-                                    <span class="badge badge-warning">En attente de vérification</span>
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">En attente de vérification</span>
                                 @endif
                             </p>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label font-weight-bold">Date de création</label>
-                            <p class="form-control-plaintext">{{ $pharmacy->created_at->format('d/m/Y à H:i') }}</p>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Date de création</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ $pharmacy->created_at->format('d/m/Y à H:i') }}</p>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Adresse et contact -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-map-marker-alt mr-2"></i>
-                        Adresse et contact
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label font-weight-bold">Adresse</label>
-                            <p class="form-control-plaintext">{{ $pharmacy->address }}</p>
+                <!-- Adresse et contact -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-map-marker-alt text-green-500 mr-2"></i>Adresse et contact
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Adresse</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ $pharmacy->address }}</p>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label font-weight-bold">Ville</label>
-                            <p class="form-control-plaintext">{{ $pharmacy->city }}</p>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Ville</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ $pharmacy->city }}</p>
                         </div>
-                        <div class="col-md-3 mb-3">
-                            <label class="form-label font-weight-bold">Code postal</label>
-                            <p class="form-control-plaintext">{{ $pharmacy->postal_code }}</p>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Code postal</label>
+                            <p class="text-lg font-semibold text-gray-900">{{ $pharmacy->postal_code }}</p>
                         </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label font-weight-bold">Téléphone</label>
-                            <p class="form-control-plaintext">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Téléphone</label>
+                            <p class="text-lg font-semibold text-gray-900">
                                 @if($pharmacy->phone)
-                                    <a href="tel:{{ $pharmacy->phone }}" class="text-decoration-none">
-                                        {{ $pharmacy->phone }}
-                                    </a>
+                                    <a href="tel:{{ $pharmacy->phone }}" class="text-green-600 hover:text-green-800 transition-colors">{{ $pharmacy->phone }}</a>
                                 @else
-                                    <span class="text-muted">Non renseigné</span>
+                                    <span class="text-gray-400">Non renseigné</span>
                                 @endif
                             </p>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label font-weight-bold">Email</label>
-                            <p class="form-control-plaintext">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Email</label>
+                            <p class="text-lg font-semibold text-gray-900">
                                 @if($pharmacy->email)
-                                    <a href="mailto:{{ $pharmacy->email }}" class="text-decoration-none">
-                                        {{ $pharmacy->email }}
-                                    </a>
+                                    <a href="{{ $pharmacy->email_url }}" class="text-green-600 hover:text-green-800 transition-colors">{{ $pharmacy->email }}</a>
                                 @else
-                                    <span class="text-muted">Non renseigné</span>
+                                    <span class="text-gray-400">Non renseigné</span>
                                 @endif
                             </p>
                         </div>
-                    </div>
-
-                    @if($pharmacy->latitude && $pharmacy->longitude)
-                    <div class="row">
-                        <div class="col-12 mb-3">
-                            <label class="form-label font-weight-bold">Coordonnées GPS</label>
-                            <p class="form-control-plaintext">
-                                Latitude: {{ $pharmacy->latitude }}, Longitude: {{ $pharmacy->longitude }}
-                            </p>
+                        @if($pharmacy->latitude && $pharmacy->longitude)
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Coordonnées GPS</label>
+                            <p class="text-sm font-mono text-gray-600">Latitude: {{ $pharmacy->latitude }}, Longitude: {{ $pharmacy->longitude }}</p>
                         </div>
+                        @endif
                     </div>
-                    @endif
                 </div>
-            </div>
 
-            <!-- Horaires d'ouverture -->
-            @if($pharmacy->opening_hours)
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-clock mr-2"></i>
-                        Horaires d'ouverture
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
+                <!-- Horaires d'ouverture -->
+                @if($pharmacy->opening_hours)
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-clock text-green-500 mr-2"></i>Horaires d'ouverture
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <th>Jour</th>
-                                    <th>Matin</th>
-                                    <th>Après-midi</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Jour</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Matin</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Après-midi</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="bg-white divide-y divide-gray-200">
                                 @foreach($pharmacy->opening_hours as $day => $hours)
                                 <tr>
-                                    <td class="font-weight-bold">{{ ucfirst($day) }}</td>
-                                    <td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ ucfirst($day) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         @if(isset($hours['morning']) && $hours['morning'])
                                             {{ $hours['morning']['start'] }} - {{ $hours['morning']['end'] }}
                                         @else
-                                            <span class="text-muted">Fermé</span>
+                                            <span class="text-gray-400">Fermé</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         @if(isset($hours['afternoon']) && $hours['afternoon'])
                                             {{ $hours['afternoon']['start'] }} - {{ $hours['afternoon']['end'] }}
                                         @else
-                                            <span class="text-muted">Fermé</span>
+                                            <span class="text-gray-400">Fermé</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -180,164 +175,128 @@
                         </table>
                     </div>
                 </div>
-            </div>
-            @endif
+                @endif
 
-            <!-- Services -->
-            @if($pharmacy->services && count($pharmacy->services) > 0)
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-concierge-bell mr-2"></i>
-                        Services proposés
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
+                <!-- Services -->
+                @if($pharmacy->services && count($pharmacy->services) > 0)
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-concierge-bell text-green-500 mr-2"></i>Services proposés
+                    </h2>
+                    <div class="flex flex-wrap gap-2">
                         @foreach($pharmacy->services as $service)
-                        <div class="col-md-6 mb-2">
-                            <span class="badge badge-info">{{ $service }}</span>
-                        </div>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">{{ $service }}</span>
                         @endforeach
                     </div>
                 </div>
-            </div>
-            @endif
+                @endif
 
-            <!-- Description -->
-            @if($pharmacy->description)
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-align-left mr-2"></i>
-                        Description
-                    </h6>
+                <!-- Description -->
+                @if($pharmacy->description)
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                        <i class="fas fa-align-left text-green-500 mr-2"></i>Description
+                    </h2>
+                    <p class="text-gray-700 leading-relaxed">{{ $pharmacy->description }}</p>
                 </div>
-                <div class="card-body">
-                    <p class="form-control-plaintext">{{ $pharmacy->description }}</p>
-                </div>
+                @endif
             </div>
-            @endif
-        </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Pharmacien responsable -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-user-md mr-2"></i>
-                        Pharmacien responsable
-                    </h6>
-                </div>
-                <div class="card-body">
+            <!-- Sidebar -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Pharmacien responsable -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-user-md text-green-500 mr-2"></i>Pharmacien responsable
+                    </h3>
                     @if($pharmacy->pharmacist)
                         <div class="text-center">
-                            <div class="avatar-lg bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3">
+                            <div class="h-20 w-20 rounded-full bg-green-500 text-white flex items-center justify-center mx-auto mb-3 text-3xl font-bold">
                                 {{ substr($pharmacy->pharmacist->name, 0, 1) }}
                             </div>
-                            <h5 class="font-weight-bold">{{ $pharmacy->pharmacist->name }}</h5>
-                            <p class="text-muted">{{ $pharmacy->pharmacist->email }}</p>
-                            <a href="{{ route('admin.users.show', $pharmacy->pharmacist) }}" class="btn btn-sm btn-primary">
-                                <i class="fas fa-eye mr-1"></i>
-                                Voir le profil
+                            <h4 class="font-bold text-gray-900">{{ $pharmacy->pharmacist->name }}</h4>
+                            <p class="text-gray-500 text-sm">{{ $pharmacy->pharmacist->email }}</p>
+                            <a href="{{ route('admin.users.show', $pharmacy->pharmacist) }}" class="mt-4 inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                                <i class="fas fa-eye mr-2"></i>Voir le profil
                             </a>
                         </div>
                     @else
                         <div class="text-center">
-                            <i class="fas fa-user-slash fa-3x text-gray-300 mb-3"></i>
-                            <p class="text-muted">Aucun pharmacien assigné</p>
+                            <i class="fas fa-user-slash text-gray-300 text-5xl mb-3"></i>
+                            <p class="text-gray-400">Aucun pharmacien assigné</p>
                         </div>
                     @endif
                 </div>
-            </div>
 
-            <!-- Actions rapides -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-bolt mr-2"></i>
-                        Actions rapides
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a href="{{ route('admin.pharmacies.edit', $pharmacy) }}" class="btn btn-warning">
-                            <i class="fas fa-edit mr-2"></i>
-                            Modifier la pharmacie
+                <!-- Actions rapides -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-bolt text-green-500 mr-2"></i>Actions rapides
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="{{ route('admin.pharmacies.edit', $pharmacy) }}" class="w-full flex items-center justify-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors">
+                            <i class="fas fa-edit mr-2"></i>Modifier la pharmacie
                         </a>
                         
-                        <form action="{{ route('admin.pharmacies.toggle-verification', $pharmacy) }}" method="POST" class="d-inline">
+                        <form action="{{ route('admin.pharmacies.toggle-verification', $pharmacy) }}" method="POST" class="inline w-full">
                             @csrf
-                            <button type="submit" class="btn {{ $pharmacy->is_verified ? 'btn-warning' : 'btn-success' }} w-100">
+                            <button type="submit" class="w-full flex items-center justify-center px-4 py-3 {{ $pharmacy->is_verified ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600' }} text-white rounded-lg transition-colors">
                                 <i class="fas {{ $pharmacy->is_verified ? 'fa-times' : 'fa-check' }} mr-2"></i>
                                 {{ $pharmacy->is_verified ? 'Désactiver la vérification' : 'Vérifier la pharmacie' }}
                             </button>
                         </form>
 
-                        <form action="{{ route('admin.pharmacies.toggle-status', $pharmacy) }}" method="POST" class="d-inline">
+                        <form action="{{ route('admin.pharmacies.toggle-status', $pharmacy) }}" method="POST" class="inline w-full">
                             @csrf
-                            <button type="submit" class="btn {{ $pharmacy->is_active ? 'btn-secondary' : 'btn-primary' }} w-100">
+                            <button type="submit" class="w-full flex items-center justify-center px-4 py-3 {{ $pharmacy->is_active ? 'bg-gray-500 hover:bg-gray-600' : 'bg-blue-500 hover:bg-blue-600' }} text-white rounded-lg transition-colors">
                                 <i class="fas {{ $pharmacy->is_active ? 'fa-pause' : 'fa-play' }} mr-2"></i>
                                 {{ $pharmacy->is_active ? 'Désactiver' : 'Activer' }}
                             </button>
                         </form>
 
-                        <button type="button" class="btn btn-danger" 
-                                onclick="confirmDelete('{{ route('admin.pharmacies.destroy', $pharmacy) }}', '{{ $pharmacy->name }}')">
-                            <i class="fas fa-trash mr-2"></i>
-                            Supprimer la pharmacie
+                        <button type="button" 
+                                onclick="confirmDelete('{{ route('admin.pharmacies.destroy', $pharmacy) }}', '{{ $pharmacy->name }}')"
+                                class="w-full flex items-center justify-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
+                            <i class="fas fa-trash mr-2"></i>Supprimer la pharmacie
                         </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Statistiques -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-chart-bar mr-2"></i>
-                        Informations
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <div class="h4 mb-0 text-primary">{{ $pharmacy->id }}</div>
-                            <div class="small text-muted">ID Pharmacie</div>
+                <!-- Statistiques -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-chart-bar text-green-500 mr-2"></i>Informations
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <div class="text-3xl font-bold text-blue-600">{{ $pharmacy->id }}</div>
+                            <div class="text-xs text-gray-500 mt-1">ID Pharmacie</div>
                         </div>
-                        <div class="col-6">
-                            <div class="h4 mb-0 text-success">
-                                {{ $pharmacy->created_at->diffInDays(now()) }}
-                            </div>
-                            <div class="small text-muted">Jours d'existence</div>
+                        <div>
+                            <div class="text-3xl font-bold text-green-600">{{ $pharmacy->created_at->diffInDays(now()) }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Jours d'existence</div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Informations système -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-cog mr-2"></i>
-                        Informations système
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold">ID</label>
-                        <p class="form-control-plaintext">{{ $pharmacy->id }}</p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold">Créée le</label>
-                        <p class="form-control-plaintext">{{ $pharmacy->created_at->format('d/m/Y à H:i') }}</p>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label font-weight-bold">Dernière mise à jour</label>
-                        <p class="form-control-plaintext">{{ $pharmacy->updated_at->format('d/m/Y à H:i') }}</p>
+                <!-- Informations système -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-cog text-green-500 mr-2"></i>Informations système
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">ID</label>
+                            <p class="text-sm font-semibold text-gray-900">{{ $pharmacy->id }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Créée le</label>
+                            <p class="text-sm text-gray-900">{{ $pharmacy->created_at->format('d/m/Y à H:i') }}</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Dernière mise à jour</label>
+                            <p class="text-sm text-gray-900">{{ $pharmacy->updated_at->format('d/m/Y à H:i') }}</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -346,52 +305,53 @@
 </div>
 
 <!-- Modal de confirmation de suppression -->
-<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmer la suppression</h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold text-gray-900">Confirmer la suppression</h3>
+                <button onclick="closeDeleteModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <div class="modal-body">
-                <p>Êtes-vous sûr de vouloir supprimer la pharmacie <strong id="pharmacyName"></strong> ?</p>
-                <p class="text-danger"><strong>Cette action est irréversible !</strong></p>
+            <div class="mb-6">
+                <p class="text-gray-700">Êtes-vous sûr de vouloir supprimer la pharmacie <strong id="pharmacyName"></strong> ?</p>
+                <p class="text-red-600 font-semibold mt-2">Cette action est irréversible !</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+            <div class="flex justify-end space-x-3">
+                <button onclick="closeDeleteModal()" class="px-6 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors">
+                    Annuler
+                </button>
                 <form id="deleteForm" method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="btn btn-danger">Supprimer</button>
+                    <button type="submit" class="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                        Supprimer
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-@endsection
-
-@push('styles')
-<style>
-.avatar-lg {
-    width: 80px;
-    height: 80px;
-    font-size: 32px;
-}
-
-.card {
-    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15) !important;
-}
-</style>
-@endpush
 
 @push('scripts')
 <script>
 function confirmDelete(url, pharmacyName) {
     document.getElementById('pharmacyName').textContent = pharmacyName;
     document.getElementById('deleteForm').action = url;
-    $('#deleteModal').modal('show');
+    document.getElementById('deleteModal').classList.remove('hidden');
 }
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+
+// Fermer avec Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeDeleteModal();
+    }
+});
 </script>
 @endpush
+@endsection

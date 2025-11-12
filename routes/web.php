@@ -90,6 +90,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // Gestion des pharmacies
     Route::get('/pharmacies', [App\Http\Controllers\AdminController::class, 'pharmacies'])->name('pharmacies');
+    Route::get('/pharmacies/create', [App\Http\Controllers\AdminController::class, 'createPharmacy'])->name('pharmacies.create');
+    Route::post('/pharmacies', [App\Http\Controllers\AdminController::class, 'storePharmacy'])->name('pharmacies.store');
     Route::get('/pharmacies/{pharmacy}', [App\Http\Controllers\AdminController::class, 'showPharmacy'])->name('pharmacies.show');
     Route::get('/pharmacies/{pharmacy}/edit', [App\Http\Controllers\AdminController::class, 'editPharmacy'])->name('pharmacies.edit');
     Route::put('/pharmacies/{pharmacy}', [App\Http\Controllers\AdminController::class, 'updatePharmacy'])->name('pharmacies.update');
@@ -103,7 +105,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/authorization-numbers', [App\Http\Controllers\AdminController::class, 'storeAuthorizationNumber'])->name('authorization-numbers.store');
     Route::get('/authorization-numbers/{authorizationNumber}/edit', [App\Http\Controllers\AdminController::class, 'editAuthorizationNumber'])->name('authorization-numbers.edit');
     Route::put('/authorization-numbers/{authorizationNumber}', [App\Http\Controllers\AdminController::class, 'updateAuthorizationNumber'])->name('authorization-numbers.update');
-            Route::delete('/authorization-numbers/{authorizationNumber}', [App\Http\Controllers\AdminController::class, 'destroyAuthorizationNumber'])->name('authorization-numbers.destroy');
+    Route::post('/authorization-numbers/{authorizationNumber}/toggle-validity', [App\Http\Controllers\AdminController::class, 'toggleAuthorizationNumberValidity'])->name('authorization-numbers.toggle-validity');
+    Route::delete('/authorization-numbers/{authorizationNumber}', [App\Http\Controllers\AdminController::class, 'destroyAuthorizationNumber'])->name('authorization-numbers.destroy');
 
             // Profil et paramètres administrateur
             Route::get('/profile', [App\Http\Controllers\AdminController::class, 'profile'])->name('profile');
