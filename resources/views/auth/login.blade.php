@@ -138,6 +138,10 @@
                     <span class="font-medium">Pharmacien :</span>
                     <span class="text-gray-600">gothie@geopharma.com / password</span>
                 </div>
+                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span class="font-medium">Administrateur :</span>
+                    <span class="text-gray-600">admin@geopharma.com / password</span>
+                </div>
             </div>
         </div>
     </div>
