@@ -124,11 +124,19 @@
             <div class="space-y-2 text-xs">
                 <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
                     <span class="font-medium">Utilisateur :</span>
-                    <span class="text-gray-600">jean.dupont@example.com / password</span>
+                    <span class="text-gray-600">jedidia.umba@geopharma.com / password</span>
                 </div>
                 <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
                     <span class="font-medium">Pharmacien :</span>
-                    <span class="text-gray-600">marie.martin@pharmacie.fr / password</span>
+                    <span class="text-gray-600">joviette.kandolo@geopharma.com / password</span>
+                </div>
+                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span class="font-medium">Pharmacien :</span>
+                    <span class="text-gray-600">binda.scholastique@geopharma.com / password</span>
+                </div>
+                <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                    <span class="font-medium">Pharmacien :</span>
+                    <span class="text-gray-600">gothie@geopharma.com / password</span>
                 </div>
             </div>
         </div>
