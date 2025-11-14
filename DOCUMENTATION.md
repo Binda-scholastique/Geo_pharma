@@ -33,12 +33,12 @@ Requête HTTP → Routes → Middleware → Contrôleur → Modèle → Vue → 
 ```
 
 ### Technologies principales
-- **Backend** : Laravel 8.83.29
+- **Backend** : Laravel 10.49.1
 - **Frontend** : Blade Templates, Bootstrap 5, Tailwind CSS
 - **JavaScript** : Vanilla JS, Leaflet.js (cartes)
 - **Base de données** : MySQL/SQLite
 - **Authentification** : Laravel UI + Sanctum
-- **PHP** : ^7.3|^8.0
+- **PHP** : ^8.1 (requis pour Laravel 10)
 
 ---
 
@@ -898,11 +898,59 @@ php artisan make:seeder NomSeeder
 
 ---
 
+## Migration vers Laravel 10
+
+### Changements Principaux
+
+L'application a été migrée de Laravel 8 vers Laravel 10. Voici les principaux changements :
+
+#### 1. **Support CORS Natif**
+- **Avant** : Utilisation du package `fruitcake/laravel-cors`
+- **Maintenant** : Support CORS natif intégré dans Laravel 10
+- **Fichier modifié** : `app/Http/Kernel.php`
+  - Remplacement de `\Fruitcake\Cors\HandleCors::class` par `\Illuminate\Http\Middleware\HandleCors::class`
+- **Configuration** : Le fichier `config/cors.php` reste valide et fonctionne avec le middleware natif
+
+#### 2. **RouteServiceProvider**
+- Suppression des références au `namespace` (déprécié)
+- Utilisation de la syntaxe nullsafe PHP 8.1+ : `$request->user()?->id` au lieu de `optional($request->user())->id`
+
+#### 3. **Dépendances Mises à Jour**
+- **PHP** : ^8.1 (requis pour Laravel 10)
+- **Laravel Framework** : 10.49.1
+- **Laravel Sanctum** : ^3.2
+- **Laravel Tinker** : ^2.8
+- **PHPUnit** : ^10.1 (pour les tests)
+- **Collision** : ^7.0 (pour les erreurs CLI)
+- **Laravel Ignition** : ^2.0 (pour le debugging)
+
+#### 4. **Nouveaux Packages**
+- **Laravel Prompts** : Nouveau package pour les interactions CLI améliorées
+
+#### 5. **Packages Supprimés**
+- `fruitcake/laravel-cors` : Remplacé par le support natif
+
+### Compatibilité
+
+- ✅ Toutes les routes fonctionnent correctement
+- ✅ Tous les contrôleurs sont compatibles
+- ✅ Les modèles Eloquent fonctionnent sans modification
+- ✅ Les vues Blade sont compatibles
+- ✅ L'authentification Laravel UI fonctionne
+
+### Notes Importantes
+
+- **PHP 8.1+ requis** : Laravel 10 nécessite PHP 8.1 ou supérieur
+- **Tests** : Si vous avez des tests, ils peuvent nécessiter des ajustements pour PHPUnit 10
+- **CORS** : La configuration CORS dans `config/cors.php` fonctionne avec le middleware natif
+
+---
+
 ## Conclusion
 
 Cette documentation couvre l'ensemble de l'architecture et des composants de **GeoPharma**. Chaque dossier et fichier a un rôle spécifique dans le fonctionnement de l'application. 
 
-Pour toute question ou amélioration, consultez la documentation Laravel officielle : https://laravel.com/docs
+Pour toute question ou amélioration, consultez la documentation Laravel officielle : https://laravel.com/docs/10.x
 
 Pour migrer vers Firebase, consultez **[FIREBASE_MIGRATION.md](FIREBASE_MIGRATION.md)**.
 
@@ -910,6 +958,6 @@ Pour migrer vers Firebase, consultez **[FIREBASE_MIGRATION.md](FIREBASE_MIGRATIO
 
 **Développé par Scholastique Binda, Joviette Kandolo et Jedidia Umba**
 
-*Dernière mise à jour : 2025*
+*Dernière mise à jour : 2025 - Laravel 10.49.1*
 
 

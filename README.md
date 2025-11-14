@@ -22,19 +22,19 @@ GeoPharma est une application web moderne développée avec Laravel qui permet a
 
 ## Technologies Utilisées
 
-- **Backend** : Laravel 8.83.29
+- **Backend** : Laravel 10.49.1
 - **Frontend** : Blade Templates + Tailwind CSS
 - **Base de données** : MySQL/SQLite
 - **Cartes** : Leaflet.js
 - **Icônes** : Font Awesome
 - **Géolocalisation** : API HTML5 Geolocation
-- **Authentification** : Laravel UI
-- **PHP** : ^7.3|^8.0
+- **Authentification** : Laravel UI + Sanctum
+- **PHP** : ^8.1 (requis pour Laravel 10)
 
 ## Installation
 
 ### Prérequis
-- PHP 7.4 ou supérieur
+- PHP 8.1 ou supérieur (requis pour Laravel 10)
 - Composer
 - Node.js et NPM
 - MySQL ou SQLite

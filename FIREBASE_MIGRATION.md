@@ -17,10 +17,10 @@
 
 ## Vue d'ensemble
 
-Ce guide vous accompagne dans la migration de **GeoPharma** (Laravel 8.83.29) de MySQL vers **Firebase** (Firestore). Firebase offre une base de données NoSQL en temps réel, une authentification intégrée, et un stockage de fichiers cloud.
+Ce guide vous accompagne dans la migration de **GeoPharma** (Laravel 10.49.1) de MySQL vers **Firebase** (Firestore). Firebase offre une base de données NoSQL en temps réel, une authentification intégrée, et un stockage de fichiers cloud.
 
-**Version Laravel** : 8.83.29
-**Version PHP requise** : ^7.3|^8.0 (selon composer.json)
+**Version Laravel** : 10.49.1
+**Version PHP requise** : ^8.1 (requis pour Laravel 10)
 
 ### Avantages de Firebase
 
@@ -55,6 +55,8 @@ Ce guide vous accompagne dans la migration de **GeoPharma** (Laravel 8.83.29) de
 
 ### 2. Installation des Packages Laravel
 
+**Note** : Laravel 10 inclut le support CORS natif, donc le package `fruitcake/laravel-cors` n'est plus nécessaire.
+
 ```bash
 composer require kreait/firebase-php
 composer require kreait/laravel-firebase
@@ -65,6 +67,8 @@ composer require kreait/laravel-firebase
 ```bash
 php artisan vendor:publish --provider="Kreait\Laravel\Firebase\ServiceProvider"
 ```
+
+**Note pour Laravel 10** : Assurez-vous d'avoir PHP 8.1 ou supérieur installé.
 
 ---
 
@@ -1158,7 +1162,16 @@ Cette migration vers Firebase offre une architecture plus flexible et scalable. 
 
 **Note importante** : Cette migration nécessite des tests approfondis avant la mise en production. Assurez-vous de tester toutes les fonctionnalités critiques.
 
+### Compatibilité Laravel 10
+
+Ce guide est compatible avec **Laravel 10.49.1**. Les packages Firebase fonctionnent avec Laravel 10, mais assurez-vous d'avoir :
+- PHP 8.1 ou supérieur
+- Les dépendances à jour (voir `composer.json`)
+- Le support CORS natif de Laravel 10 (plus besoin de `fruitcake/laravel-cors`)
+
+Pour plus d'informations sur les changements de Laravel 10, consultez **[DOCUMENTATION.md](DOCUMENTATION.md)** (section "Migration vers Laravel 10").
+
 ---
 
-**Dernière mise à jour : 2025**
+**Dernière mise à jour : 2025 - Laravel 10.49.1**
 
