@@ -22,13 +22,14 @@ GeoPharma est une application web moderne développée avec Laravel qui permet a
 
 ## Technologies Utilisées
 
-- **Backend** : Laravel 8.x
+- **Backend** : Laravel 8.83.29
 - **Frontend** : Blade Templates + Tailwind CSS
 - **Base de données** : MySQL/SQLite
 - **Cartes** : Leaflet.js
 - **Icônes** : Font Awesome
 - **Géolocalisation** : API HTML5 Geolocation
 - **Authentification** : Laravel UI
+- **PHP** : ^7.3|^8.0
 
 ## Installation
 
@@ -186,6 +187,34 @@ Après avoir exécuté les seeders, vous pouvez utiliser ces comptes :
 ## Licence
 
 Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+
+## Documentation Complète
+
+### Documentation Principale
+
+Pour une documentation détaillée de l'architecture, de tous les dossiers et fichiers de l'application, consultez **[DOCUMENTATION.md](DOCUMENTATION.md)**.
+
+Cette documentation inclut :
+- Architecture complète de l'application
+- Description détaillée de chaque dossier et fichier
+- Flux de données et processus métier
+- Structure de la base de données
+- Guide des routes et API
+- Instructions pour étendre l'application
+- Nouvelles fonctionnalités (horaires d'ouverture, création admin, etc.)
+
+### Migration vers Firebase
+
+Pour migrer l'application de MySQL vers Firebase (Firestore), consultez **[FIREBASE_MIGRATION.md](FIREBASE_MIGRATION.md)**.
+
+Ce guide inclut :
+- Installation et configuration Firebase
+- Migration des modèles Eloquent vers Firestore
+- Adaptation des contrôleurs
+- Authentification Firebase
+- Scripts de migration des données
+- Stockage de fichiers cloud
+- Guide de déploiement
 
 ## Support
 
