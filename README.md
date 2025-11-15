@@ -128,18 +128,6 @@ Geo_pharma/
 - `POST /api/pharmacies/search` - Recherche avancée
 - `GET /api/pharmacies/{id}` - Détails d'une pharmacie
 
-## Comptes de Test
-
-Après avoir exécuté les seeders, vous pouvez utiliser ces comptes :
-
-### Utilisateur
-- **Email** : jean.dupont@example.com
-- **Mot de passe** : password
-
-### Pharmacien
-- **Email** : marie.martin@pharmacie.fr
-- **Mot de passe** : password
-- **Numéro d'autorisation** : PH123456789
 
 ## Fonctionnalités Avancées
 
