@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pharmacy;
+use App\Models\FirebasePharmacy as Pharmacy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -30,7 +30,7 @@ class PharmacistController extends Controller
     public function dashboard()
     {
         $pharmacist = Auth::user();
-        $pharmacies = $pharmacist->pharmacies()->get();
+        $pharmacies = $pharmacist->pharmacies();
 
         return view('pharmacist.dashboard', compact('pharmacist', 'pharmacies'));
     }
@@ -81,7 +81,7 @@ class PharmacistController extends Controller
             $openingHours = json_decode($openingHours, true);
         }
 
-        $pharmacy = Pharmacy::create([
+        $pharmacy = new Pharmacy([
             'name' => $request->name,
             'description' => $request->description,
             'address' => $request->address,
@@ -96,7 +96,10 @@ class PharmacistController extends Controller
             'opening_hours' => $openingHours,
             'services' => $request->services,
             'pharmacist_id' => Auth::id(),
+            'is_active' => true,
+            'is_verified' => false,
         ]);
+        $pharmacy->save();
 
         return redirect()->route('pharmacist.dashboard')
             ->with('success', 'Pharmacie créée avec succès ! Elle sera vérifiée par nos équipes avant d\'apparaître sur la carte.');
@@ -105,8 +108,10 @@ class PharmacistController extends Controller
     /**
      * Afficher le formulaire d'édition d'une pharmacie
      */
-    public function editPharmacy(Pharmacy $pharmacy)
+    public function editPharmacy($id)
     {
+        $pharmacy = Pharmacy::findOrFail($id);
+        
         // Vérifier que la pharmacie appartient au pharmacien connecté
         if ($pharmacy->pharmacist_id !== Auth::id()) {
             abort(403, 'Vous ne pouvez pas modifier cette pharmacie.');
@@ -118,8 +123,10 @@ class PharmacistController extends Controller
     /**
      * Traiter la mise à jour d'une pharmacie
      */
-    public function updatePharmacy(Request $request, Pharmacy $pharmacy)
+    public function updatePharmacy(Request $request, $id)
     {
+        $pharmacy = Pharmacy::findOrFail($id);
+        
         // Vérifier que la pharmacie appartient au pharmacien connecté
         if ($pharmacy->pharmacist_id !== Auth::id()) {
             abort(403, 'Vous ne pouvez pas modifier cette pharmacie.');
@@ -142,12 +149,27 @@ class PharmacistController extends Controller
         ]);
 
         // Gérer les horaires (peuvent être envoyés en JSON string ou en array)
-        $data = $request->all();
-        if (isset($data['opening_hours']) && is_string($data['opening_hours'])) {
-            $data['opening_hours'] = json_decode($data['opening_hours'], true);
+        $openingHours = $request->opening_hours;
+        if (is_string($openingHours)) {
+            $openingHours = json_decode($openingHours, true);
         }
 
-        $pharmacy->update($data);
+        $pharmacy->fill([
+            'name' => $request->name,
+            'description' => $request->description,
+            'address' => $request->address,
+            'city' => $request->city,
+            'postal_code' => $request->postal_code,
+            'country' => $request->country,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'whatsapp_number' => $request->whatsapp_number,
+            'opening_hours' => $openingHours,
+            'services' => $request->services,
+        ]);
+        $pharmacy->save();
 
         return redirect()->route('pharmacist.dashboard')
             ->with('success', 'Pharmacie mise à jour avec succès !');
@@ -165,10 +187,9 @@ class PharmacistController extends Controller
             'postal_code' => 'required|string|max:10',
         ]);
 
-        Auth::user()->update([
-            'profile_completed' => true,
-            // Vous pouvez ajouter d'autres champs au modèle User si nécessaire
-        ]);
+        $user = Auth::user();
+        $user->profile_completed = true;
+        $user->save();
 
         return redirect()->route('pharmacist.dashboard')
             ->with('success', 'Profil complété avec succès ! Vous pouvez maintenant ajouter vos pharmacies.');
@@ -189,10 +210,18 @@ class PharmacistController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . auth()->id(),
+            'email' => 'required|string|email|max:255',
         ]);
 
-        auth()->user()->update($request->only(['name', 'email']));
+        // Vérifier l'unicité de l'email manuellement
+        $user = Auth::user();
+        $existingUser = \App\Models\FirebaseUser::whereEmail($request->email)->first();
+        if ($existingUser && $existingUser->id !== $user->id) {
+            return back()->withErrors(['email' => 'Cet email est déjà utilisé.']);
+        }
+
+        $user->fill($request->only(['name', 'email']));
+        $user->save();
 
         return redirect()->route('pharmacist.profile')->with('success', 'Profil mis à jour avec succès.');
     }
@@ -211,9 +240,9 @@ class PharmacistController extends Controller
             return back()->withErrors(['current_password' => 'Le mot de passe actuel est incorrect.']);
         }
 
-        auth()->user()->update([
-            'password' => Hash::make($request->password),
-        ]);
+        $user = Auth::user();
+        $user->password = Hash::make($request->password);
+        $user->save();
 
         return redirect()->route('pharmacist.profile')->with('success', 'Mot de passe mis à jour avec succès.');
     }
@@ -272,7 +301,8 @@ class PharmacistController extends Controller
             'postal_code' => 'nullable|string|max:10',
         ]);
 
-        $pharmacist->update($request->only('latitude', 'longitude', 'address', 'city', 'postal_code'));
+        $pharmacist->fill($request->only('latitude', 'longitude', 'address', 'city', 'postal_code'));
+        $pharmacist->save();
 
         return redirect()->route('pharmacist.location')->with('success', 'Localisation mise à jour avec succès.');
     }

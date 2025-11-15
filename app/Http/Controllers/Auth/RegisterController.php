@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
-use App\Models\User;
+use App\Models\FirebaseUser as User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -49,12 +49,22 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        return Validator::make($data, [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required', 'in:user,pharmacist'],
-        ]);
+        ];
+        
+        // Vérifier l'unicité de l'email manuellement
+        $existingUser = User::whereEmail($data['email'] ?? '');
+        if ($existingUser) {
+            return Validator::make($data, $rules)->after(function ($validator) {
+                $validator->errors()->add('email', 'Cet email est déjà utilisé.');
+            });
+        }
+        
+        return Validator::make($data, $rules);
     }
 
     /**
@@ -65,11 +75,14 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        return User::create([
+        $user = new User([
             'name' => $data['name'],
             'email' => $data['email'],
             'role' => $data['role'],
             'password' => Hash::make($data['password']),
+            'profile_completed' => false,
         ]);
+        $user->save();
+        return $user;
     }
 }

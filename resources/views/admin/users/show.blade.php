@@ -16,7 +16,7 @@
                     <p class="text-green-100 mt-2 text-lg">Informations complètes sur {{ $user->name }}</p>
                 </div>
                 <div class="flex space-x-3">
-                    <a href="{{ route('admin.users.edit', $user) }}" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-200">
+                    <a href="{{ route('admin.users.edit', $user->id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-200">
                         <i class="fas fa-edit mr-2"></i>Modifier
                     </a>
                     <a href="{{ route('admin.users') }}" class="bg-white text-green-700 px-4 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200 font-medium shadow-md">
@@ -103,7 +103,7 @@
                         @endif
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Date d'inscription</label>
-                            <p class="text-lg font-semibold text-gray-900">{{ $user->created_at->format('d/m/Y à H:i') }}</p>
+                            <p class="text-lg font-semibold text-gray-900">{{ $user->created_at ? $user->created_at->format('d/m/Y à H:i') : '-' }}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Dernière connexion</label>
@@ -155,7 +155,7 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                        <a href="{{ route('admin.pharmacies.show', $pharmacy) }}" 
+                                        <a href="{{ route('admin.pharmacies.show', $pharmacy->id) }}" 
                                            class="text-blue-600 hover:text-blue-900 transition-colors">
                                             <i class="fas fa-eye"></i>
                                         </a>
@@ -177,7 +177,7 @@
                         <i class="fas fa-bolt text-green-500 mr-2"></i>Actions rapides
                     </h3>
                     <div class="space-y-3">
-                        <a href="{{ route('admin.users.edit', $user) }}" class="w-full flex items-center justify-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors">
+                        <a href="{{ route('admin.users.edit', $user->id) }}" class="w-full flex items-center justify-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors">
                             <i class="fas fa-edit mr-2"></i>Modifier l'utilisateur
                         </a>
                         
@@ -188,7 +188,7 @@
                         @endif
 
                         <button type="button" 
-                                onclick="confirmDelete('{{ route('admin.users.destroy', $user) }}', '{{ $user->name }}')"
+                                onclick="confirmDelete('{{ route('admin.users.destroy', $user->id) }}', '{{ $user->name }}')"
                                 class="w-full flex items-center justify-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
                             <i class="fas fa-trash mr-2"></i>Supprimer l'utilisateur
                         </button>
@@ -234,7 +234,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Dernière mise à jour</label>
-                            <p class="text-sm text-gray-900">{{ $user->updated_at->format('d/m/Y à H:i') }}</p>
+                            <p class="text-sm text-gray-900">{{ $user->updated_at ? $user->updated_at->format('d/m/Y à H:i') : '-' }}</p>
                         </div>
                     </div>
                 </div>

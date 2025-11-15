@@ -227,7 +227,7 @@
                                                 @endif
                                             </div>
                                             <div class="flex items-center space-x-2">
-                                                <a href="{{ route('pharmacies.show', $pharmacy) }}" 
+                                                <a href="{{ route('pharmacies.show', $pharmacy->id) }}" 
                                                    class="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
                                                     <i class="fas fa-eye mr-1"></i>Voir
                                                 </a>

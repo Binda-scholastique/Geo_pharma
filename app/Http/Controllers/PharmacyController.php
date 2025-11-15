@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Pharmacy;
+use App\Models\FirebasePharmacy;
 use Illuminate\Http\Request;
 
 class PharmacyController extends Controller
@@ -14,10 +14,11 @@ class PharmacyController extends Controller
     public function index()
     {
         // Récupérer toutes les pharmacies actives et vérifiées
-        $pharmacies = Pharmacy::active()
-            ->verified()
-            ->with('pharmacist')
-            ->get();
+        $allPharmacies = FirebasePharmacy::all();
+        $pharmacies = $allPharmacies
+            ->where('is_active', true)
+            ->where('is_verified', true)
+            ->values();
 
         return view('pharmacies.index', compact('pharmacies'));
     }
@@ -25,7 +26,7 @@ class PharmacyController extends Controller
     /**
      * Afficher les détails d'une pharmacie
      */
-    public function show(Pharmacy $pharmacy)
+    public function show($id)
     {
         // Vérifier que l'utilisateur est connecté pour voir les détails
         if (!auth()->check()) {
@@ -33,8 +34,7 @@ class PharmacyController extends Controller
                 ->with('error', 'Vous devez être connecté pour voir les détails de la pharmacie.');
         }
 
-        // Charger la relation avec le pharmacien
-        $pharmacy->load('pharmacist');
+        $pharmacy = FirebasePharmacy::findOrFail($id);
 
         return view('pharmacies.show', compact('pharmacy'));
     }
@@ -55,11 +55,11 @@ class PharmacyController extends Controller
         $radius = $request->radius ?? 10; // Rayon par défaut de 10km
 
         // Rechercher les pharmacies à proximité
-        $pharmacies = Pharmacy::active()
-            ->verified()
-            ->nearby($latitude, $longitude, $radius)
-            ->with('pharmacist')
-            ->get();
+        $allPharmacies = FirebasePharmacy::scopeNearby(null, $latitude, $longitude, $radius);
+        $pharmacies = $allPharmacies
+            ->where('is_active', true)
+            ->where('is_verified', true)
+            ->values();
 
         return response()->json([
             'success' => true,
@@ -77,11 +77,14 @@ class PharmacyController extends Controller
             'city' => 'required|string|min:2|max:100'
         ]);
 
-        $pharmacies = Pharmacy::active()
-            ->verified()
-            ->where('city', 'like', '%' . $request->city . '%')
-            ->with('pharmacist')
-            ->get();
+        $allPharmacies = FirebasePharmacy::all();
+        $pharmacies = $allPharmacies
+            ->where('is_active', true)
+            ->where('is_verified', true)
+            ->filter(function ($pharmacy) use ($request) {
+                return stripos($pharmacy->city ?? '', $request->city) !== false;
+            })
+            ->values();
 
         return response()->json([
             'success' => true,
@@ -95,10 +98,23 @@ class PharmacyController extends Controller
      */
     public function getPharmaciesForMap()
     {
-        $pharmacies = Pharmacy::active()
-            ->verified()
-            ->select(['id', 'name', 'address', 'city', 'latitude', 'longitude', 'phone', 'whatsapp_number'])
-            ->get();
+        $allPharmacies = FirebasePharmacy::all();
+        $pharmacies = $allPharmacies
+            ->where('is_active', true)
+            ->where('is_verified', true)
+            ->map(function ($pharmacy) {
+                return [
+                    'id' => $pharmacy->id,
+                    'name' => $pharmacy->name,
+                    'address' => $pharmacy->address,
+                    'city' => $pharmacy->city,
+                    'latitude' => $pharmacy->latitude,
+                    'longitude' => $pharmacy->longitude,
+                    'phone' => $pharmacy->phone,
+                    'whatsapp_number' => $pharmacy->whatsapp_number,
+                ];
+            })
+            ->values();
 
         return response()->json([
             'success' => true,
@@ -120,27 +136,33 @@ class PharmacyController extends Controller
                 $longitude = $request->longitude;
                 $radius = $request->radius ?? 10;
                 
-                $pharmacies = Pharmacy::active()
-                    ->verified()
-                    ->nearby($latitude, $longitude, $radius)
-                    ->with('pharmacist')
-                    ->get();
+                $allPharmacies = FirebasePharmacy::scopeNearby(null, $latitude, $longitude, $radius);
+                $pharmacies = $allPharmacies
+                    ->where('is_active', true)
+                    ->where('is_verified', true)
+                    ->values();
                     
             } elseif ($request->search_type === 'city' && $request->has('search_city')) {
                 // Recherche par ville
-                $pharmacies = Pharmacy::active()
-                    ->verified()
-                    ->where('city', 'like', '%' . $request->search_city . '%')
-                    ->with('pharmacist')
-                    ->get();
+                $allPharmacies = FirebasePharmacy::all();
+                $pharmacies = $allPharmacies
+                    ->where('is_active', true)
+                    ->where('is_verified', true)
+                    ->filter(function ($pharmacy) use ($request) {
+                        return stripos($pharmacy->city ?? '', $request->search_city) !== false;
+                    })
+                    ->values();
                     
             } elseif ($request->search_type === 'name' && $request->has('search_name')) {
                 // Recherche par nom
-                $pharmacies = Pharmacy::active()
-                    ->verified()
-                    ->where('name', 'like', '%' . $request->search_name . '%')
-                    ->with('pharmacist')
-                    ->get();
+                $allPharmacies = FirebasePharmacy::all();
+                $pharmacies = $allPharmacies
+                    ->where('is_active', true)
+                    ->where('is_verified', true)
+                    ->filter(function ($pharmacy) use ($request) {
+                        return stripos($pharmacy->name ?? '', $request->search_name) !== false;
+                    })
+                    ->values();
             }
             
             // Filtrer par services si spécifiés

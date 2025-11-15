@@ -134,7 +134,8 @@
     </style>
     
     <!-- Custom CSS -->
-    <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
+    {{-- <link href="{{ asset('css/custom.css') }}" rel="stylesheet"> --}}
+    {{-- Le CSS personnalisé est intégré dans les styles inline ci-dessus --}}
     
     @stack('styles')
 </head>

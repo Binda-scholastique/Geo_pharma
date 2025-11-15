@@ -16,7 +16,7 @@
                     <p class="text-green-100 mt-2 text-lg">Informations complètes sur {{ $pharmacy->name }}</p>
                 </div>
                 <div class="flex space-x-3">
-                    <a href="{{ route('admin.pharmacies.edit', $pharmacy) }}" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-200">
+                    <a href="{{ route('admin.pharmacies.edit', $pharmacy->id) }}" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors duration-200">
                         <i class="fas fa-edit mr-2"></i>Modifier
                     </a>
                     <a href="{{ route('admin.pharmacies') }}" class="bg-white text-green-700 px-4 py-2 rounded-lg hover:bg-green-50 transition-colors duration-200 font-medium shadow-md">
@@ -84,7 +84,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Date de création</label>
-                            <p class="text-lg font-semibold text-gray-900">{{ $pharmacy->created_at->format('d/m/Y à H:i') }}</p>
+                            <p class="text-lg font-semibold text-gray-900">{{ $pharmacy->created_at ? $pharmacy->created_at->format('d/m/Y à H:i') : '-' }}</p>
                         </div>
                     </div>
                 </div>
@@ -152,19 +152,37 @@
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($pharmacy->opening_hours as $day => $hours)
+                                @php
+                                    $dayNames = [
+                                        'lundi' => 'Lundi',
+                                        'mardi' => 'Mardi',
+                                        'mercredi' => 'Mercredi',
+                                        'jeudi' => 'Jeudi',
+                                        'vendredi' => 'Vendredi',
+                                        'samedi' => 'Samedi',
+                                        'dimanche' => 'Dimanche'
+                                    ];
+                                @endphp
+                                @foreach($dayNames as $dayKey => $dayName)
+                                @php
+                                    $hours = $pharmacy->opening_hours[$dayKey] ?? null;
+                                @endphp
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ ucfirst($day) }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $dayName }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @if(isset($hours['morning']) && $hours['morning'])
+                                        @if($hours && isset($hours['morning']) && isset($hours['morning']['start']) && isset($hours['morning']['end']))
                                             {{ $hours['morning']['start'] }} - {{ $hours['morning']['end'] }}
+                                        @elseif($hours && isset($hours['start']) && isset($hours['end']))
+                                            {{ $hours['start'] }} - {{ $hours['end'] }}
                                         @else
                                             <span class="text-gray-400">Fermé</span>
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @if(isset($hours['afternoon']) && $hours['afternoon'])
+                                        @if($hours && isset($hours['afternoon']) && isset($hours['afternoon']['start']) && isset($hours['afternoon']['end']))
                                             {{ $hours['afternoon']['start'] }} - {{ $hours['afternoon']['end'] }}
+                                        @elseif($hours && isset($hours['start']) && isset($hours['end']))
+                                            <span class="text-gray-400">-</span>
                                         @else
                                             <span class="text-gray-400">Fermé</span>
                                         @endif
@@ -216,14 +234,17 @@
                             </div>
                             <h4 class="font-bold text-gray-900">{{ $pharmacy->pharmacist->name }}</h4>
                             <p class="text-gray-500 text-sm">{{ $pharmacy->pharmacist->email }}</p>
-                            <a href="{{ route('admin.users.show', $pharmacy->pharmacist) }}" class="mt-4 inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
+                            <a href="{{ route('admin.users.show', $pharmacy->pharmacist->id) }}" class="mt-4 inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm">
                                 <i class="fas fa-eye mr-2"></i>Voir le profil
                             </a>
                         </div>
                     @else
                         <div class="text-center">
-                            <i class="fas fa-user-slash text-gray-300 text-5xl mb-3"></i>
-                            <p class="text-gray-400">Aucun pharmacien assigné</p>
+                            <div class="h-20 w-20 rounded-full bg-gray-300 text-white flex items-center justify-center mx-auto mb-3 text-3xl font-bold">
+                                ?
+                            </div>
+                            <h4 class="font-bold text-gray-900">Non assigné</h4>
+                            <p class="text-gray-500 text-sm">Aucun pharmacien assigné</p>
                         </div>
                     @endif
                 </div>
@@ -234,11 +255,11 @@
                         <i class="fas fa-bolt text-green-500 mr-2"></i>Actions rapides
                     </h3>
                     <div class="space-y-3">
-                        <a href="{{ route('admin.pharmacies.edit', $pharmacy) }}" class="w-full flex items-center justify-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors">
+                        <a href="{{ route('admin.pharmacies.edit', $pharmacy->id) }}" class="w-full flex items-center justify-center px-4 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors">
                             <i class="fas fa-edit mr-2"></i>Modifier la pharmacie
                         </a>
                         
-                        <form action="{{ route('admin.pharmacies.toggle-verification', $pharmacy) }}" method="POST" class="inline w-full">
+                        <form action="{{ route('admin.pharmacies.toggle-verification', $pharmacy->id) }}" method="POST" class="inline w-full">
                             @csrf
                             <button type="submit" class="w-full flex items-center justify-center px-4 py-3 {{ $pharmacy->is_verified ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600' }} text-white rounded-lg transition-colors">
                                 <i class="fas {{ $pharmacy->is_verified ? 'fa-times' : 'fa-check' }} mr-2"></i>
@@ -246,7 +267,7 @@
                             </button>
                         </form>
 
-                        <form action="{{ route('admin.pharmacies.toggle-status', $pharmacy) }}" method="POST" class="inline w-full">
+                        <form action="{{ route('admin.pharmacies.toggle-status', $pharmacy->id) }}" method="POST" class="inline w-full">
                             @csrf
                             <button type="submit" class="w-full flex items-center justify-center px-4 py-3 {{ $pharmacy->is_active ? 'bg-gray-500 hover:bg-gray-600' : 'bg-blue-500 hover:bg-blue-600' }} text-white rounded-lg transition-colors">
                                 <i class="fas {{ $pharmacy->is_active ? 'fa-pause' : 'fa-play' }} mr-2"></i>
@@ -255,7 +276,7 @@
                         </form>
 
                         <button type="button" 
-                                onclick="confirmDelete('{{ route('admin.pharmacies.destroy', $pharmacy) }}', '{{ $pharmacy->name }}')"
+                                onclick="confirmDelete('{{ route('admin.pharmacies.destroy', $pharmacy->id) }}', '{{ $pharmacy->name }}')"
                                 class="w-full flex items-center justify-center px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
                             <i class="fas fa-trash mr-2"></i>Supprimer la pharmacie
                         </button>
@@ -291,11 +312,11 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Créée le</label>
-                            <p class="text-sm text-gray-900">{{ $pharmacy->created_at->format('d/m/Y à H:i') }}</p>
+                            <p class="text-sm text-gray-900">{{ $pharmacy->created_at ? $pharmacy->created_at->format('d/m/Y à H:i') : '-' }}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Dernière mise à jour</label>
-                            <p class="text-sm text-gray-900">{{ $pharmacy->updated_at->format('d/m/Y à H:i') }}</p>
+                            <p class="text-sm text-gray-900">{{ $pharmacy->updated_at ? $pharmacy->updated_at->format('d/m/Y à H:i') : '-' }}</p>
                         </div>
                     </div>
                 </div>

@@ -153,7 +153,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Membre depuis</label>
-                            <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->created_at->format('d/m/Y') }}</p>
+                            <p class="text-sm font-semibold text-gray-900">{{ auth()->user()->created_at ? auth()->user()->created_at->format('d/m/Y') : '-' }}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-500 mb-1">Email vérifié</label>

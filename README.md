@@ -24,7 +24,7 @@ GeoPharma est une application web moderne développée avec Laravel qui permet a
 
 - **Backend** : Laravel 10.49.1
 - **Frontend** : Blade Templates + Tailwind CSS
-- **Base de données** : MySQL/SQLite
+- **Base de données** : Firebase Firestore (NoSQL)
 - **Cartes** : Leaflet.js
 - **Icônes** : Font Awesome
 - **Géolocalisation** : API HTML5 Geolocation
@@ -37,7 +37,7 @@ GeoPharma est une application web moderne développée avec Laravel qui permet a
 - PHP 8.1 ou supérieur (requis pour Laravel 10)
 - Composer
 - Node.js et NPM
-- MySQL ou SQLite
+- Firebase Project (voir [FIREBASE_COMPLETE_GUIDE.md](FIREBASE_COMPLETE_GUIDE.md))
 
 ### Étapes d'installation
 
@@ -63,25 +63,22 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-5. **Configuration de la base de données**
-Modifiez le fichier `.env` pour configurer votre base de données :
-```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=geo_pharma
-DB_USERNAME=root
-DB_PASSWORD=
-```
+5. **Configuration Firebase**
+   
+   ⚠️ **IMPORTANT** : Cette application utilise Firebase Firestore comme base de données.
+   
+   Suivez le guide complet : **[FIREBASE_COMPLETE_GUIDE.md](FIREBASE_COMPLETE_GUIDE.md)**
+   
+   Étapes rapides :
+   - Créer un projet Firebase dans [Firebase Console](https://console.firebase.google.com)
+   - Télécharger les credentials et les placer dans `storage/app/firebase.credentials.json`
+   - Activer Firestore Database
+   - Configurer les règles de sécurité
 
-6. **Exécuter les migrations**
+6. **Migrer les données (si vous avez des données MySQL existantes)**
 ```bash
-php artisan migrate
-```
-
-7. **Ajouter des données de test (optionnel)**
-```bash
-php artisan db:seed
+php artisan firebase:migrate --dry-run  # Test d'abord
+php artisan firebase:migrate            # Migration réelle
 ```
 
 8. **Démarrer le serveur**
@@ -203,18 +200,22 @@ Cette documentation inclut :
 - Instructions pour étendre l'application
 - Nouvelles fonctionnalités (horaires d'ouverture, création admin, etc.)
 
-### Migration vers Firebase
+### Guide Complet Firebase
 
-Pour migrer l'application de MySQL vers Firebase (Firestore), consultez **[FIREBASE_MIGRATION.md](FIREBASE_MIGRATION.md)**.
+**📘 [FIREBASE_COMPLETE_GUIDE.md](FIREBASE_COMPLETE_GUIDE.md)** - Guide complet de bout en bout
 
-Ce guide inclut :
-- Installation et configuration Firebase
-- Migration des modèles Eloquent vers Firestore
-- Adaptation des contrôleurs
-- Authentification Firebase
-- Scripts de migration des données
-- Stockage de fichiers cloud
-- Guide de déploiement
+Ce guide unique explique **TOUT** ce que vous devez savoir sur Firebase dans ce projet :
+
+1. **Création du projet Firebase** dans Firebase Console
+2. **Configuration Firebase** (Firestore, règles de sécurité, service account)
+3. **Installation et configuration dans Laravel** (packages, fichiers de config)
+4. **Architecture et structure des données** (comment les données sont stockées)
+5. **Comment fonctionne la connexion** (OAuth2, API REST, conversion des types)
+6. **Utilisation dans le code** (modèles, CRUD, recherches, relations)
+7. **Migration des données** (de MySQL vers Firestore)
+8. **Dépannage** (solutions aux problèmes courants)
+
+**Ce guide est essentiel** pour comprendre comment l'application utilise Firebase comme base de données principale.
 
 ## Support
 

@@ -203,18 +203,18 @@
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">En attente</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $pharmacy->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $pharmacy->created_at ? $pharmacy->created_at->format('d/m/Y H:i') : '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center space-x-2">
-                                        <a href="{{ route('admin.pharmacies.show', $pharmacy) }}" 
+                                        <a href="{{ route('admin.pharmacies.show', $pharmacy->id) }}" 
                                            class="text-blue-600 hover:text-blue-900 transition-colors" title="Voir">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <!-- <a href="{{ route('admin.pharmacies.edit', $pharmacy) }}" 
+                                        <!-- <a href="{{ route('admin.pharmacies.edit', $pharmacy->id) }}" 
                                            class="text-yellow-600 hover:text-yellow-900 transition-colors" title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a> -->
-                                        <form action="{{ route('admin.pharmacies.toggle-verification', $pharmacy) }}" 
+                                        <form action="{{ route('admin.pharmacies.toggle-verification', $pharmacy->id) }}" 
                                               method="POST" class="inline">
                                             @csrf
                                             <button type="submit" 
@@ -223,7 +223,7 @@
                                                 <i class="fas {{ $pharmacy->is_verified ? 'fa-times' : 'fa-check' }}"></i>
                                             </button>
                                         </form>
-                                        <form action="{{ route('admin.pharmacies.toggle-status', $pharmacy) }}" 
+                                        <form action="{{ route('admin.pharmacies.toggle-status', $pharmacy->id) }}" 
                                               method="POST" class="inline">
                                             @csrf
                                             <button type="submit" 
@@ -232,7 +232,7 @@
                                                 <i class="fas {{ $pharmacy->is_active ? 'fa-pause' : 'fa-play' }}"></i>
                                             </button>
                                         </form>
-                                        <form action="{{ route('admin.pharmacies.destroy', $pharmacy) }}" 
+                                        <form action="{{ route('admin.pharmacies.destroy', $pharmacy->id) }}" 
                                               method="POST" class="inline"
                                               onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette pharmacie ?')">
                                             @csrf

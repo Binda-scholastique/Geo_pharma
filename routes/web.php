@@ -29,7 +29,7 @@ Route::post('/register', [RegisterController::class, 'register']);
 // Routes publiques pour les pharmacies
 Route::get('/pharmacies', [PharmacyController::class, 'index'])->name('pharmacies.index');
 Route::get('/pharmacies/search', [PharmacyController::class, 'searchPage'])->name('pharmacies.search');
-Route::get('/pharmacies/{pharmacy}', [PharmacyController::class, 'show'])->name('pharmacies.show');
+Route::get('/pharmacies/{id}', [PharmacyController::class, 'show'])->name('pharmacies.show');
 Route::post('/pharmacies/search', [PharmacyController::class, 'search'])->name('pharmacies.search');
 Route::post('/pharmacies/search-by-city', [PharmacyController::class, 'searchByCity'])->name('pharmacies.search-by-city');
 Route::get('/pharmacies-api/map', [PharmacyController::class, 'getPharmaciesForMap'])->name('pharmacies.api.map');
@@ -42,8 +42,8 @@ Route::middleware(['auth'])->group(function () {
     // Gestion des pharmacies
     Route::get('/pharmacist/pharmacy/create', [PharmacistController::class, 'createPharmacy'])->name('pharmacist.create-pharmacy');
     Route::post('/pharmacist/pharmacy/store', [PharmacistController::class, 'storePharmacy'])->name('pharmacist.store-pharmacy');
-    Route::get('/pharmacist/pharmacy/{pharmacy}/edit', [PharmacistController::class, 'editPharmacy'])->name('pharmacist.edit-pharmacy');
-    Route::put('/pharmacist/pharmacy/{pharmacy}/update', [PharmacistController::class, 'updatePharmacy'])->name('pharmacist.update-pharmacy');
+    Route::get('/pharmacist/pharmacy/{id}/edit', [PharmacistController::class, 'editPharmacy'])->name('pharmacist.edit-pharmacy');
+    Route::put('/pharmacist/pharmacy/{id}/update', [PharmacistController::class, 'updatePharmacy'])->name('pharmacist.update-pharmacy');
     
     // Complétion du profil
     Route::get('/pharmacist/complete-profile', [PharmacistController::class, 'createPharmacy'])->name('pharmacist.complete-profile');
@@ -83,30 +83,30 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/users', [App\Http\Controllers\AdminController::class, 'users'])->name('users');
     Route::get('/users/create', [App\Http\Controllers\AdminController::class, 'createUser'])->name('users.create');
     Route::post('/users', [App\Http\Controllers\AdminController::class, 'storeUser'])->name('users.store');
-    Route::get('/users/{user}', [App\Http\Controllers\AdminController::class, 'showUser'])->name('users.show');
-    Route::get('/users/{user}/edit', [App\Http\Controllers\AdminController::class, 'editUser'])->name('users.edit');
-    Route::put('/users/{user}', [App\Http\Controllers\AdminController::class, 'updateUser'])->name('users.update');
-    Route::delete('/users/{user}', [App\Http\Controllers\AdminController::class, 'destroyUser'])->name('users.destroy');
+    Route::get('/users/{id}', [App\Http\Controllers\AdminController::class, 'showUser'])->name('users.show');
+    Route::get('/users/{id}/edit', [App\Http\Controllers\AdminController::class, 'editUser'])->name('users.edit');
+    Route::put('/users/{id}', [App\Http\Controllers\AdminController::class, 'updateUser'])->name('users.update');
+    Route::delete('/users/{id}', [App\Http\Controllers\AdminController::class, 'destroyUser'])->name('users.destroy');
     
     // Gestion des pharmacies
     Route::get('/pharmacies', [App\Http\Controllers\AdminController::class, 'pharmacies'])->name('pharmacies');
     Route::get('/pharmacies/create', [App\Http\Controllers\AdminController::class, 'createPharmacy'])->name('pharmacies.create');
     Route::post('/pharmacies', [App\Http\Controllers\AdminController::class, 'storePharmacy'])->name('pharmacies.store');
-    Route::get('/pharmacies/{pharmacy}', [App\Http\Controllers\AdminController::class, 'showPharmacy'])->name('pharmacies.show');
-    Route::get('/pharmacies/{pharmacy}/edit', [App\Http\Controllers\AdminController::class, 'editPharmacy'])->name('pharmacies.edit');
-    Route::put('/pharmacies/{pharmacy}', [App\Http\Controllers\AdminController::class, 'updatePharmacy'])->name('pharmacies.update');
-    Route::delete('/pharmacies/{pharmacy}', [App\Http\Controllers\AdminController::class, 'destroyPharmacy'])->name('pharmacies.destroy');
-    Route::post('/pharmacies/{pharmacy}/toggle-verification', [App\Http\Controllers\AdminController::class, 'togglePharmacyVerification'])->name('pharmacies.toggle-verification');
-    Route::post('/pharmacies/{pharmacy}/toggle-status', [App\Http\Controllers\AdminController::class, 'togglePharmacyStatus'])->name('pharmacies.toggle-status');
+    Route::get('/pharmacies/{id}', [App\Http\Controllers\AdminController::class, 'showPharmacy'])->name('pharmacies.show');
+    Route::get('/pharmacies/{id}/edit', [App\Http\Controllers\AdminController::class, 'editPharmacy'])->name('pharmacies.edit');
+    Route::put('/pharmacies/{id}', [App\Http\Controllers\AdminController::class, 'updatePharmacy'])->name('pharmacies.update');
+    Route::delete('/pharmacies/{id}', [App\Http\Controllers\AdminController::class, 'destroyPharmacy'])->name('pharmacies.destroy');
+    Route::post('/pharmacies/{id}/toggle-verification', [App\Http\Controllers\AdminController::class, 'togglePharmacyVerification'])->name('pharmacies.toggle-verification');
+    Route::post('/pharmacies/{id}/toggle-status', [App\Http\Controllers\AdminController::class, 'togglePharmacyStatus'])->name('pharmacies.toggle-status');
     
     // Gestion des numéros d'autorisation
     Route::get('/authorization-numbers', [App\Http\Controllers\AdminController::class, 'authorizationNumbers'])->name('authorization-numbers');
     Route::get('/authorization-numbers/create', [App\Http\Controllers\AdminController::class, 'createAuthorizationNumber'])->name('authorization-numbers.create');
     Route::post('/authorization-numbers', [App\Http\Controllers\AdminController::class, 'storeAuthorizationNumber'])->name('authorization-numbers.store');
-    Route::get('/authorization-numbers/{authorizationNumber}/edit', [App\Http\Controllers\AdminController::class, 'editAuthorizationNumber'])->name('authorization-numbers.edit');
-    Route::put('/authorization-numbers/{authorizationNumber}', [App\Http\Controllers\AdminController::class, 'updateAuthorizationNumber'])->name('authorization-numbers.update');
-    Route::post('/authorization-numbers/{authorizationNumber}/toggle-validity', [App\Http\Controllers\AdminController::class, 'toggleAuthorizationNumberValidity'])->name('authorization-numbers.toggle-validity');
-    Route::delete('/authorization-numbers/{authorizationNumber}', [App\Http\Controllers\AdminController::class, 'destroyAuthorizationNumber'])->name('authorization-numbers.destroy');
+    Route::get('/authorization-numbers/{id}/edit', [App\Http\Controllers\AdminController::class, 'editAuthorizationNumber'])->name('authorization-numbers.edit');
+    Route::put('/authorization-numbers/{id}', [App\Http\Controllers\AdminController::class, 'updateAuthorizationNumber'])->name('authorization-numbers.update');
+    Route::post('/authorization-numbers/{id}/toggle-validity', [App\Http\Controllers\AdminController::class, 'toggleAuthorizationNumberValidity'])->name('authorization-numbers.toggle-validity');
+    Route::delete('/authorization-numbers/{id}', [App\Http\Controllers\AdminController::class, 'destroyAuthorizationNumber'])->name('authorization-numbers.destroy');
 
             // Profil et paramètres administrateur
             Route::get('/profile', [App\Http\Controllers\AdminController::class, 'profile'])->name('profile');

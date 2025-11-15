@@ -14,7 +14,7 @@
             <p class="text-muted mb-0">Modifier les informations de {{ $user->name }}</p>
         </div>
         <div>
-            <a href="{{ route('admin.users.show', $user) }}" class="btn btn-info me-2">
+            <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-info me-2">
                 <i class="fas fa-eye me-2"></i>
                 Voir les détails
             </a>
@@ -36,7 +36,7 @@
                     </h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.users.update', $user) }}" method="POST">
+                    <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         
@@ -148,7 +148,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end">
-                            <a href="{{ route('admin.users.show', $user) }}" class="btn btn-secondary me-2">
+                            <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-secondary me-2">
                                 <i class="fas fa-times me-2"></i>
                                 Annuler
                             </a>
@@ -198,7 +198,7 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Inscrit le</label>
-                        <p class="form-control-plaintext">{{ $user->created_at->format('d/m/Y à H:i') }}</p>
+                        <p class="form-control-plaintext">{{ $user->created_at ? $user->created_at->format('d/m/Y à H:i') : '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -213,7 +213,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('admin.users.show', $user) }}" class="btn btn-info">
+                        <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-info">
                             <i class="fas fa-eye me-2"></i>
                             Voir les détails
                         </a>
@@ -226,7 +226,7 @@
                         @endif
 
                         <button type="button" class="btn btn-danger" 
-                                onclick="confirmDelete('{{ route('admin.users.destroy', $user) }}', '{{ $user->name }}')">
+                                onclick="confirmDelete('{{ route('admin.users.destroy', $user->id) }}', '{{ $user->name }}')">
                             <i class="fas fa-trash me-2"></i>
                             Supprimer l'utilisateur
                         </button>

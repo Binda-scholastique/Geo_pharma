@@ -136,11 +136,11 @@
                         </tr>
                         <tr>
                             <td><strong>Création :</strong></td>
-                            <td>{{ $authorizationNumber->created_at->format('d/m/Y') }}</td>
+                            <td>{{ $authorizationNumber->created_at ? $authorizationNumber->created_at->format('d/m/Y') : '-' }}</td>
                         </tr>
                         <tr>
                             <td><strong>Modification :</strong></td>
-                            <td>{{ $authorizationNumber->updated_at->format('d/m/Y H:i') }}</td>
+                            <td>{{ $authorizationNumber->updated_at ? $authorizationNumber->updated_at->format('d/m/Y H:i') : '-' }}</td>
                         </tr>
                     </table>
                 </div>

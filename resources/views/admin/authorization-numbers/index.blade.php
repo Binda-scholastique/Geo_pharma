@@ -128,16 +128,16 @@
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Permanent</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $authNumber->created_at->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $authNumber->created_at ? $authNumber->created_at->format('d/m/Y') : '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center space-x-2">
-                                        <a href="{{ route('admin.authorization-numbers.edit', $authNumber) }}" 
+                                        <a href="{{ route('admin.authorization-numbers.edit', $authNumber->id) }}" 
                                            class="text-yellow-600 hover:text-yellow-900 transition-colors" title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         
                                         <!-- Toggle validité -->
-                                        <form method="POST" action="{{ route('admin.authorization-numbers.toggle-validity', $authNumber) }}" 
+                                        <form method="POST" action="{{ route('admin.authorization-numbers.toggle-validity', $authNumber->id) }}" 
                                               class="inline">
                                             @csrf
                                             <button type="submit" 
@@ -148,7 +148,7 @@
                                         </form>
                                         
                                         <!-- Supprimer -->
-                                        <form method="POST" action="{{ route('admin.authorization-numbers.destroy', $authNumber) }}" 
+                                        <form method="POST" action="{{ route('admin.authorization-numbers.destroy', $authNumber->id) }}" 
                                               class="inline"
                                               onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce numéro d\'autorisation ?')">
                                             @csrf

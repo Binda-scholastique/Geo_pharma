@@ -115,7 +115,7 @@
     </div>
 
     <!-- Demo Accounts -->
-    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+    <!-- <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div class="bg-white py-4 px-4 shadow-lg rounded-lg border border-green-100">
             <h3 class="text-sm font-medium text-gray-900 mb-3 text-center">
                 <i class="fas fa-info-circle text-green-500 mr-1"></i>
@@ -144,7 +144,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 </div>
 @endsection
 

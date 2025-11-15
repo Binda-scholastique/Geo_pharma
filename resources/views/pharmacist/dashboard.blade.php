@@ -343,15 +343,19 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $pharmacy->created_at->format('d/m/Y H:i') }}
+                                    @if($pharmacy->created_at)
+                                        {{ $pharmacy->created_at->format('d/m/Y H:i') }}
+                                    @else
+                                        <span class="text-gray-400">-</span>
+                                    @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center space-x-2">
-                                        <a href="{{ route('pharmacist.edit-pharmacy', $pharmacy) }}" 
+                                        <a href="{{ route('pharmacist.edit-pharmacy', $pharmacy->id) }}" 
                                            class="text-yellow-600 hover:text-yellow-900 transition-colors" title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="{{ route('pharmacies.show', $pharmacy) }}" 
+                                        <a href="{{ route('pharmacies.show', $pharmacy->id) }}" 
                                            class="text-blue-600 hover:text-blue-900 transition-colors" title="Voir">
                                             <i class="fas fa-eye"></i>
                                         </a>
@@ -455,7 +459,7 @@
                     <div class="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
                         <div>
                             <p class="text-sm text-gray-500 mb-1">Membre depuis</p>
-                            <p class="text-base font-semibold text-gray-900">{{ Auth::user()->created_at->format('d/m/Y') }}</p>
+                            <p class="text-base font-semibold text-gray-900">{{ Auth::user()->created_at ? Auth::user()->created_at->format('d/m/Y') : '-' }}</p>
                         </div>
                         <i class="fas fa-calendar text-gray-400 text-xl"></i>
                     </div>

@@ -15,7 +15,7 @@
                     </h1>
                     <p class="text-green-100 mt-2 text-lg">Gérez tous les utilisateurs de la plateforme</p>
                 </div>
-                <a href="{{ route('admin.users.create') }}" class="bg-white bg-opacity-20 text-white px-6 py-3 rounded-lg hover:bg-opacity-30 transition-colors duration-200 flex items-center">
+                <a href="{{ route('admin.users.create') }}" class="bg-white text-green-600 px-6 py-3 rounded-lg hover:bg-green-50 transition-colors duration-200 flex items-center font-semibold shadow-md hover:shadow-lg">
                     <i class="fas fa-plus mr-2"></i>Nouvel Utilisateur
                 </a>
             </div>
@@ -184,18 +184,18 @@
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Incomplet</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->created_at->format('d/m/Y H:i') }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $user->created_at ? $user->created_at->format('d/m/Y H:i') : '-' }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex items-center space-x-2">
-                                        <a href="{{ route('admin.users.show', $user) }}" 
+                                        <a href="{{ route('admin.users.show', $user->id) }}" 
                                            class="text-blue-600 hover:text-blue-900 transition-colors" title="Voir">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.users.edit', $user) }}" 
+                                        <a href="{{ route('admin.users.edit', $user->id) }}" 
                                            class="text-yellow-600 hover:text-yellow-900 transition-colors" title="Modifier">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('admin.users.destroy', $user) }}" 
+                                        <form action="{{ route('admin.users.destroy', $user->id) }}" 
                                               method="POST" class="inline"
                                               onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
                                             @csrf

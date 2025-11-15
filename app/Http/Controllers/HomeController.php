@@ -37,14 +37,9 @@ class HomeController extends Controller
                 return redirect()->route('pharmacies.index');
             }
             
-            // Pour les pharmaciens, afficher le dashboard
+            // Si l'utilisateur est un pharmacien, rediriger vers son dashboard
             if ($user->role === 'pharmacist') {
-                $totalPharmacies = \App\Models\Pharmacy::where('is_active', true)->where('is_verified', true)->count();
-                $totalPharmacists = \App\Models\User::where('role', 'pharmacist')->count();
-                $activePharmacies = \App\Models\Pharmacy::where('is_active', true)->count();
-                $verifiedPharmacies = \App\Models\Pharmacy::where('is_verified', true)->count();
-                
-                return view('home', compact('totalPharmacies', 'totalPharmacists', 'activePharmacies', 'verifiedPharmacies'));
+                return redirect()->route('pharmacist.dashboard');
             }
         }
         

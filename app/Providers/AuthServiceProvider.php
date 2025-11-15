@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
+use App\Providers\FirebaseUserProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,9 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        // Enregistrer le provider Firebase personnalisé
+        Auth::provider('firebase', function ($app, array $config) {
+            return new FirebaseUserProvider();
+        });
     }
 }

@@ -36,9 +36,10 @@ Requête HTTP → Routes → Middleware → Contrôleur → Modèle → Vue → 
 - **Backend** : Laravel 10.49.1
 - **Frontend** : Blade Templates, Bootstrap 5, Tailwind CSS
 - **JavaScript** : Vanilla JS, Leaflet.js (cartes)
-- **Base de données** : MySQL/SQLite
-- **Authentification** : Laravel UI + Sanctum
+- **Base de données** : Firebase Firestore (NoSQL)
+- **Authentification** : Laravel UI + Sanctum (avec Firebase User Provider)
 - **PHP** : ^8.1 (requis pour Laravel 10)
+- **Firebase** : Firestore pour le stockage des données en temps réel
 
 ---
 
@@ -108,13 +109,23 @@ Les contrôleurs gèrent la logique HTTP de l'application. Ils reçoivent les re
 - Recherche par ville
 - Liste pour affichage carte
 
-#### `/app/Models` - Modèles Eloquent
+#### `/app/Models` - Modèles Firebase
 
-Les modèles représentent les entités de la base de données et gèrent les relations entre elles.
+Les modèles représentent les entités stockées dans Firebase Firestore et gèrent les opérations CRUD.
 
-##### `User.php`
-**Table** : `users`
+##### `FirebaseModel.php` (Classe de base)
+**Rôle** : Classe abstraite de base pour tous les modèles Firebase
+**Fonctionnalités** :
+- Encapsule `FirebaseService` pour communiquer avec Firestore
+- Méthodes CRUD : `find()`, `all()`, `create()`, `update()`, `delete()`
+- Gestion des attributs et casts
+- Pagination manuelle
+- Relations manuelles (pas de relations Eloquent)
+
+##### `FirebaseUser.php`
+**Collection** : `users`
 **Rôle** : Représente tous les utilisateurs (admin, pharmacien, utilisateur)
+**Hérite de** : `FirebaseModel` et implémente `Authenticatable`
 **Attributs clés** :
 - `role` : Type d'utilisateur (admin/pharmacist/user)
 - `authorization_number` : Numéro d'autorisation pour pharmacien
@@ -123,14 +134,18 @@ Les modèles représentent les entités de la base de données et gèrent les re
 - `address`, `city`, `postal_code` : Adresse
 
 **Relations** :
-- `hasMany(Pharmacy::class)` : Un pharmacien peut avoir plusieurs pharmacies
+- `pharmacies()` : Retourne les pharmacies du pharmacien (relation manuelle via Firestore)
 
 **Méthodes importantes** :
 - `isAdmin()`, `isPharmacist()`, `isUser()` : Vérification du rôle
+- `whereEmail($email)` : Recherche par email
 
-##### `Pharmacy.php`
-**Table** : `pharmacies`
+**Note** : Utilisé par `FirebaseUserProvider` pour l'authentification Laravel.
+
+##### `FirebasePharmacy.php`
+**Collection** : `pharmacies`
 **Rôle** : Représente une pharmacie
+**Hérite de** : `FirebaseModel`
 **Attributs clés** :
 - `name`, `description` : Informations de base
 - `address`, `city`, `postal_code`, `country` : Localisation
@@ -140,24 +155,31 @@ Les modèles représentent les entités de la base de données et gèrent les re
 - `services` : Services proposés (JSON)
 - `is_active` : Statut d'activation
 - `is_verified` : Statut de vérification par admin
-- `pharmacist_id` : Référence au pharmacien propriétaire
+- `pharmacist_id` : Référence au pharmacien propriétaire (ID Firestore)
 
 **Relations** :
-- `belongsTo(User::class)` : Appartient à un pharmacien
+- `pharmacist()` : Retourne le pharmacien propriétaire (relation manuelle)
 
 **Scopes** :
-- `scopeActive()` : Pharmacies actives uniquement
-- `scopeVerified()` : Pharmacies vérifiées uniquement
-- `scopeNearby()` : Recherche par proximité géographique (formule Haversine)
+- `scopeActive()` : Pharmacies actives uniquement (filtre sur collection)
+- `scopeVerified()` : Pharmacies vérifiées uniquement (filtre sur collection)
+- `scopeNearby()` : Recherche par proximité géographique (formule Haversine calculée côté client)
 
-##### `AuthorizationNumber.php`
-**Table** : `authorization_numbers`
+##### `FirebaseAuthorizationNumber.php`
+**Collection** : `authorization_numbers`
 **Rôle** : Gère les numéros d'autorisation valides pour les pharmaciens
+**Hérite de** : `FirebaseModel`
 **Attributs clés** :
 - `number` : Numéro d'autorisation
 - `pharmacist_name` : Nom du pharmacien autorisé
-- `is_active` : Statut d'activation
+- `is_valid` : Statut de validité
 - `expires_at` : Date d'expiration
+
+**Scopes** :
+- `scopeValid()` : Numéros valides uniquement
+- `scopeNotExpired()` : Numéros non expirés
+
+**Note** : Pour plus de détails sur l'utilisation de Firebase, consultez **[FIREBASE_COMPLETE_GUIDE.md](FIREBASE_COMPLETE_GUIDE.md)**.
 
 #### `/app/Http/Middleware` - Middlewares
 
@@ -185,6 +207,26 @@ Les middlewares interceptent les requêtes HTTP pour exécuter du code avant/apr
 
 #### `/app/Services` - Services Métier
 
+##### `FirebaseService.php`
+**Rôle** : Service principal pour communiquer avec Firebase Firestore via l'API REST
+**Fonctionnalités** :
+- Authentification OAuth2 avec Google Auth
+- Conversion automatique des types PHP ↔ Firestore
+- Méthodes CRUD : `create()`, `read()`, `update()`, `delete()`
+- Méthodes de requête : `getAll()`, `where()`
+- Gestion automatique des tokens d'accès (renouvellement)
+- Communication via API REST HTTP (pas besoin d'extension gRPC)
+
+**Méthodes principales** :
+- `create($collection, $data, $id = null)` : Créer un document
+- `read($collection, $id)` : Lire un document
+- `update($collection, $id, $data)` : Mettre à jour un document
+- `delete($collection, $id)` : Supprimer un document
+- `getAll($collection)` : Récupérer tous les documents
+- `where($collection, $field, $operator, $value)` : Requête avec filtre
+
+**Configuration** : `config/firebase.php`
+
 ##### `AuthorizationService.php`
 **Rôle** : Service de validation des numéros d'autorisation
 **Méthodes** :
@@ -197,10 +239,18 @@ Les middlewares interceptent les requêtes HTTP pour exécuter du code avant/apr
 Les providers enregistrent des services dans le conteneur d'injection de dépendances Laravel.
 
 - `AppServiceProvider.php` : Configuration générale de l'application
-- `AuthServiceProvider.php` : Politiques d'autorisation
+- `AuthServiceProvider.php` : Politiques d'autorisation + Enregistrement du `FirebaseUserProvider`
 - `RouteServiceProvider.php` : Configuration des routes
 - `BroadcastServiceProvider.php` : Broadcasting en temps réel
 - `EventServiceProvider.php` : Gestion des événements
+
+##### `FirebaseUserProvider.php`
+**Rôle** : Provider d'authentification personnalisé pour Firebase
+**Fonctionnalités** :
+- Implémente `UserProviderContract` de Laravel
+- Récupère les utilisateurs depuis Firestore
+- Valide les credentials (email/password)
+- Utilisé par `config/auth.php` avec le driver `firebase`
 
 #### `/app/Console` - Commandes Artisan
 
@@ -234,8 +284,9 @@ Tous les fichiers de configuration de l'application Laravel.
 #### Fichiers principaux :
 
 - `app.php` : Configuration générale (nom, timezone, locale, debug)
-- `auth.php` : Configuration de l'authentification (guards, providers)
-- `database.php` : Configuration des bases de données (MySQL, SQLite)
+- `auth.php` : Configuration de l'authentification (guards, providers) - **Utilise le driver `firebase`**
+- `firebase.php` : Configuration Firebase (credentials, project_id, collections)
+- `database.php` : Configuration des bases de données (MySQL, SQLite) - **Non utilisé pour Firestore**
 - `mail.php` : Configuration de l'envoi d'emails
 - `session.php` : Configuration des sessions
 - `cache.php` : Configuration du cache
@@ -253,45 +304,29 @@ Tous les fichiers de configuration de l'application Laravel.
 
 ### 📁 `/database` - Base de Données
 
-#### `/database/migrations` - Migrations de Schéma
+**⚠️ IMPORTANT** : L'application utilise maintenant **Firebase Firestore** comme base de données principale. Les migrations MySQL sont conservées pour référence historique mais ne sont plus utilisées.
 
-Les migrations définissent et modifient la structure de la base de données de manière versionnée.
+Pour migrer les données vers Firebase, consultez **[FIREBASE_COMPLETE_GUIDE.md](FIREBASE_COMPLETE_GUIDE.md)**.
 
-##### `2014_10_12_000000_create_users_table.php`
-**Rôle** : Crée la table `users` de base
-- Champs standards : id, name, email, password, remember_token
-- `email_verified_at` : Vérification d'email
+#### Structure Firebase Firestore
 
-##### `2014_10_12_021422_add_role_to_users_table.php`
-**Rôle** : Ajoute le champ `role` aux utilisateurs
-- Valeurs possibles : 'user', 'pharmacist', 'admin'
+Les données sont organisées en **collections** et **documents** :
 
-##### `2014_10_12_021549_create_pharmacies_table.php`
-**Rôle** : Crée la table `pharmacies`
-- Informations de base : nom, description, adresse
-- Coordonnées GPS : latitude, longitude
-- Contacts : phone, email, whatsapp_number
-- Horaires d'ouverture : opening_hours (JSON) - supporte mode simple et séparé (matin/après-midi)
-- Services : services (JSON) - liste des services proposés
-- Statuts : is_active, is_verified
-- Relation : pharmacist_id (clé étrangère vers users)
+- **Collection `users`** : Tous les utilisateurs (admin, pharmacien, utilisateur)
+- **Collection `pharmacies`** : Toutes les pharmacies
+- **Collection `authorization_numbers`** : Numéros d'autorisation
 
-##### `2014_10_12_021624_create_authorization_numbers_table.php`
-**Rôle** : Crée la table `authorization_numbers`
-- Gère les numéros d'autorisation valides
+Chaque document a un ID unique et contient des champs avec leurs types (string, number, boolean, timestamp, map, array).
 
-##### `2019_12_14_000001_create_personal_access_tokens_table.php`
-**Rôle** : Table pour Laravel Sanctum (tokens API)
-- Authentification API sans état
+#### `/database/migrations` - Migrations de Schéma (Historique)
 
-##### `2025_09_24_211647_add_admin_role_to_users_table.php`
-**Rôle** : Migration spécifique pour ajouter le rôle admin si nécessaire
+**Note** : Ces migrations ne sont plus exécutées. Elles sont conservées pour référence.
 
-##### `2025_09_25_123911_add_location_to_users_table.php`
-**Rôle** : Ajoute les champs de localisation GPS aux utilisateurs
-- latitude, longitude, address, city, postal_code
+Les migrations définissaient la structure MySQL (maintenant remplacée par Firestore).
 
 #### `/database/seeders` - Seeders (Données de Test)
+
+**Note** : Les seeders peuvent être adaptés pour créer des données dans Firebase.
 
 ##### `DatabaseSeeder.php`
 **Rôle** : Seeder principal qui appelle tous les autres seeders
@@ -302,16 +337,21 @@ Les migrations définissent et modifient la structure de la base de données de 
 - Mot de passe : password
 
 ##### `PharmacySeeder.php`
-**Rôle** : Crée des pharmacies de test avec géolocalisation
+**Rôle** : Crée des pharmacies de test avec géolocalisation (données de Kinshasa, RDC)
 
 ##### `TestPharmaciesSeeder.php`
 **Rôle** : Crée des pharmacies supplémentaires pour les tests
 
-#### `/database/factories` - Factories (Générateurs de Données)
+#### Migration des Données
 
-##### `UserFactory.php`
-**Rôle** : Génère des utilisateurs fictifs pour les tests
-- Utilisé avec Faker pour créer des données réalistes
+Pour migrer les données existantes de MySQL vers Firebase :
+
+```bash
+php artisan firebase:migrate --dry-run  # Test d'abord
+php artisan firebase:migrate            # Migration réelle
+```
+
+Voir **[FIREBASE_COMPLETE_GUIDE.md](FIREBASE_COMPLETE_GUIDE.md)** pour les détails.
 
 ---
 
@@ -513,6 +553,13 @@ Point d'entrée HTTP de l'application. Contient les fichiers accessibles publiqu
 #### `/storage/app`
 **Rôle** : Fichiers uploadés par les utilisateurs (si nécessaire)
 
+#### `/storage/app/firebase.credentials.json`
+**Rôle** : Credentials Firebase (Service Account JSON)
+**⚠️ IMPORTANT** : Ne JAMAIS commiter ce fichier dans Git !
+- Contient les clés privées pour accéder à Firebase
+- Ajouté au `.gitignore`
+- Téléchargé depuis Firebase Console → Paramètres du projet → Comptes de service
+
 #### `/storage/framework`
 - `/cache` : Cache de l'application
 - `/sessions` : Fichiers de session
@@ -548,9 +595,13 @@ Point d'entrée HTTP de l'application. Contient les fichiers accessibles publiqu
 Utilisateur → Clic "Ma position" → JavaScript (getCurrentLocation)
 → API HTML5 Geolocation → Coordonnées GPS
 → POST /pharmacies/search → PharmacyController@search
-→ Pharmacy::scopeNearby() → Calcul distance (formule Haversine)
+→ FirebasePharmacy::scopeNearby() → Récupère toutes les pharmacies depuis Firestore
+→ Calcul distance côté client (formule Haversine)
+→ Filtre par rayon → Tri par distance
 → Retour JSON → JavaScript → Affichage sur carte Leaflet
 ```
+
+**Note** : Avec Firestore, toutes les pharmacies sont récupérées puis filtrées côté client car Firestore ne supporte pas directement les requêtes géospatiales complexes.
 
 ### 2. Inscription d'un Pharmacien
 
@@ -559,7 +610,8 @@ GET /register → RegisterController@showRegistrationForm
 → Vue register.blade.php (sélection rôle)
 → POST /register → RegisterController@register
 → Validation → AuthorizationService::validate()
-→ Création User avec role='pharmacist'
+→ Création FirebaseUser avec role='pharmacist'
+→ FirebaseService::create() → Écriture dans Firestore collection 'users'
 → Redirection dashboard
 ```
 
@@ -569,7 +621,8 @@ GET /register → RegisterController@showRegistrationForm
 GET /pharmacist/pharmacy/create → PharmacistController@createPharmacy
 → Vue create-pharmacy.blade.php
 → POST /pharmacist/pharmacy/store → PharmacistController@storePharmacy
-→ Validation → Création Pharmacy avec pharmacist_id
+→ Validation → Création FirebasePharmacy avec pharmacist_id
+→ FirebaseService::create() → Écriture dans Firestore collection 'pharmacies'
 → is_verified = false (nécessite validation admin)
 → Redirection dashboard
 ```
@@ -578,10 +631,13 @@ GET /pharmacist/pharmacy/create → PharmacistController@createPharmacy
 
 ```
 GET /admin/pharmacies → AdminController@pharmacies
+→ FirebasePharmacy::all() → Récupère toutes les pharmacies depuis Firestore
+→ Filtrage et pagination côté client
 → Liste avec badge "En attente"
 → POST /admin/pharmacies/{id}/toggle-verification
 → AdminController@togglePharmacyVerification
-→ Mise à jour is_verified = true
+→ FirebaseService::update() → Mise à jour dans Firestore
+→ is_verified = true
 → Pharmacie visible publiquement
 ```
 
@@ -646,44 +702,62 @@ GET /admin/pharmacies → AdminController@pharmacies
 
 ## Base de Données
 
-### Schéma des Tables
+**⚠️ IMPORTANT** : L'application utilise **Firebase Firestore** (NoSQL) comme base de données principale.
 
-#### `users`
-- `id` (PK)
-- `name`, `email`, `password`
-- `role` (user/pharmacist/admin)
-- `authorization_number`
-- `profile_completed` (boolean)
-- `latitude`, `longitude`
-- `address`, `city`, `postal_code`
-- `email_verified_at`, `remember_token`
-- `created_at`, `updated_at`
+### Structure Firebase Firestore
 
-#### `pharmacies`
-- `id` (PK)
-- `name`, `description`
-- `address`, `city`, `postal_code`, `country`
-- `latitude`, `longitude`
-- `phone`, `email`, `whatsapp_number`
-- `opening_hours` (JSON)
-- `services` (JSON)
-- `is_active` (boolean)
-- `is_verified` (boolean)
-- `pharmacist_id` (FK → users.id)
-- `created_at`, `updated_at`
+Les données sont organisées en **collections** (équivalent des tables MySQL) et **documents** (équivalent des lignes).
 
-#### `authorization_numbers`
-- `id` (PK)
-- `number` (unique)
-- `pharmacist_name`
-- `is_active` (boolean)
-- `expires_at`
-- `created_at`, `updated_at`
+#### Collection `users`
+**Documents** : Chaque utilisateur est un document avec un ID unique
+**Champs** :
+- `id` : ID du document (string)
+- `name`, `email`, `password` : Informations de base
+- `role` : user/pharmacist/admin (string)
+- `authorization_number` : Numéro d'autorisation (string, nullable)
+- `profile_completed` : boolean
+- `latitude`, `longitude` : number (nullable)
+- `address`, `city`, `postal_code` : string (nullable)
+- `email_verified_at` : timestamp (nullable)
+- `created_at`, `updated_at` : timestamp
+
+#### Collection `pharmacies`
+**Documents** : Chaque pharmacie est un document avec un ID unique
+**Champs** :
+- `id` : ID du document (string)
+- `name`, `description` : string
+- `address`, `city`, `postal_code`, `country` : string
+- `latitude`, `longitude` : number
+- `phone`, `email`, `whatsapp_number` : string (nullable)
+- `opening_hours` : map (JSON) - structure flexible
+- `services` : array (JSON) - liste des services
+- `is_active`, `is_verified` : boolean
+- `pharmacist_id` : string (référence vers users/{id})
+- `created_at`, `updated_at` : timestamp
+
+#### Collection `authorization_numbers`
+**Documents** : Chaque numéro d'autorisation est un document
+**Champs** :
+- `id` : ID du document (string)
+- `number` : string (unique)
+- `pharmacist_name` : string
+- `is_valid` : boolean
+- `expires_at` : timestamp (nullable)
+- `created_at`, `updated_at` : timestamp
 
 ### Relations
 
-- `User` (1) ↔ (N) `Pharmacy` : Un pharmacien peut avoir plusieurs pharmacies
-- `Pharmacy` (N) ↔ (1) `User` : Une pharmacie appartient à un pharmacien
+Dans Firestore, les relations sont gérées manuellement via des références (IDs) :
+
+- `FirebaseUser` (1) ↔ (N) `FirebasePharmacy` : Un pharmacien peut avoir plusieurs pharmacies
+  - Relation via `pharmacist_id` dans le document pharmacy
+  - Méthode `$user->pharmacies()` récupère manuellement depuis Firestore
+
+- `FirebasePharmacy` (N) ↔ (1) `FirebaseUser` : Une pharmacie appartient à un pharmacien
+  - Relation via `pharmacist_id`
+  - Méthode `$pharmacy->pharmacist()` récupère manuellement depuis Firestore
+
+**Note** : Pour plus de détails sur la structure et l'utilisation de Firebase, consultez **[FIREBASE_COMPLETE_GUIDE.md](FIREBASE_COMPLETE_GUIDE.md)**.
 
 ---
 
@@ -736,18 +810,24 @@ validate($number): bool
 
 ### Calcul de Distance (Haversine)
 
-**Fichier** : `app/Models/Pharmacy.php` - Scope `scopeNearby()`
+**Fichier** : `app/Models/FirebasePharmacy.php` - Scope `scopeNearby()`
 
-**Formule** : Calcul de la distance entre deux points GPS
-```sql
-6371 * acos(
-    cos(radians(?)) * cos(radians(latitude)) *
-    cos(radians(longitude) - radians(?)) +
-    sin(radians(?)) * sin(radians(latitude))
-) AS distance
+**Formule** : Calcul de la distance entre deux points GPS (formule Haversine)
+```php
+$distance = 6371 * acos(
+    cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+    cos(deg2rad($lon2) - deg2rad($lon1)) +
+    sin(deg2rad($lat1)) * sin(deg2rad($lat2))
+);
 ```
 
-**Utilisation** : Recherche des pharmacies dans un rayon donné (par défaut 10 km)
+**Utilisation** : 
+- Récupère toutes les pharmacies depuis Firestore
+- Calcule la distance pour chaque pharmacie côté client
+- Filtre par rayon (par défaut 10 km)
+- Trie par distance croissante
+
+**Note** : Firestore ne supporte pas directement les requêtes géospatiales complexes, donc le calcul est fait côté client après récupération de toutes les pharmacies.
 
 ---
 
@@ -767,11 +847,12 @@ npm run production # Production
 # Démarrer le serveur
 php artisan serve
 
-# Lancer les migrations
-php artisan migrate
+# Migrer les données vers Firebase (si vous avez des données MySQL)
+php artisan firebase:migrate --dry-run  # Test d'abord
+php artisan firebase:migrate            # Migration réelle
 
-# Ajouter des données de test
-php artisan db:seed
+# Note : Les migrations MySQL ne sont plus utilisées
+# L'application utilise Firebase Firestore comme base de données
 ```
 
 ### Génération de Code
@@ -797,11 +878,13 @@ php artisan make:seeder NomSeeder
 ### Mesures Implémentées
 
 1. **CSRF Protection** : Tous les formulaires incluent des tokens CSRF
-2. **Authentification** : Laravel UI avec hachage bcrypt des mots de passe
+2. **Authentification** : Laravel UI avec hachage bcrypt des mots de passe + Firebase User Provider
 3. **Middleware** : Protection des routes sensibles (admin)
 4. **Validation** : Validation des données côté serveur
 5. **Sanitization** : Échappement automatique dans Blade
-6. **SQL Injection** : Protégé par Eloquent ORM (requêtes préparées)
+6. **Firebase Security Rules** : Règles de sécurité Firestore configurées (voir FIREBASE_COMPLETE_GUIDE.md)
+7. **OAuth2 Authentication** : Authentification sécurisée avec Google Auth pour l'accès à Firebase
+8. **Credentials Protection** : Fichier `firebase.credentials.json` dans `.gitignore`
 
 ---
 
@@ -809,12 +892,16 @@ php artisan make:seeder NomSeeder
 
 ### Ajouter une Nouvelle Fonctionnalité
 
-1. **Créer la migration** : `php artisan make:migration create_table_name`
-2. **Créer le modèle** : `php artisan make:model NomModel`
-3. **Créer le contrôleur** : `php artisan make:controller NomController`
-4. **Ajouter les routes** : `routes/web.php` ou `routes/api.php`
-5. **Créer les vues** : `resources/views/nom/`
-6. **Tester** : Feature tests dans `tests/Feature/`
+1. **Créer le modèle Firebase** : Étendre `FirebaseModel` (ex: `FirebaseNomModel`)
+   - Définir `protected $collection = 'nom_collection';`
+   - Définir `$fillable`, `$casts`, etc.
+2. **Créer le contrôleur** : `php artisan make:controller NomController`
+   - Utiliser le modèle Firebase pour les opérations CRUD
+3. **Ajouter les routes** : `routes/web.php` ou `routes/api.php`
+4. **Créer les vues** : `resources/views/nom/`
+5. **Tester** : Feature tests dans `tests/Feature/`
+
+**Note** : Plus besoin de migrations MySQL. Les collections Firestore sont créées automatiquement lors de la première écriture.
 
 ### Personnaliser le Design
 
@@ -870,7 +957,7 @@ php artisan make:seeder NomSeeder
 ### Messages Pré-définis pour Contact
 
 **Fichiers concernés** :
-- `app/Models/Pharmacy.php` (méthodes `getPredefinedMessage`, `getWhatsappUrlAttribute`, `getEmailUrlAttribute`)
+- `app/Models/FirebasePharmacy.php` (méthodes `getPredefinedMessage`, `getWhatsappUrlAttribute`, `getEmailUrlAttribute`)
 
 **Fonctionnalités** :
 - Génération automatique de messages selon l'heure (Bonjour/Bonsoir)
@@ -952,7 +1039,7 @@ Cette documentation couvre l'ensemble de l'architecture et des composants de **G
 
 Pour toute question ou amélioration, consultez la documentation Laravel officielle : https://laravel.com/docs/10.x
 
-Pour migrer vers Firebase, consultez **[FIREBASE_MIGRATION.md](FIREBASE_MIGRATION.md)**.
+Pour comprendre l'utilisation complète de Firebase dans ce projet, consultez **[FIREBASE_COMPLETE_GUIDE.md](FIREBASE_COMPLETE_GUIDE.md)**.
 
 ---
 

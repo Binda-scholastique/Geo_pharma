@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Pharmacy;
-use App\Models\AuthorizationNumber;
+use App\Models\FirebaseUser as User;
+use App\Models\FirebasePharmacy as Pharmacy;
+use App\Models\FirebaseAuthorizationNumber as AuthorizationNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -30,22 +30,35 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
-        $totalUsers = User::count();
-        $totalPharmacists = User::where('role', 'pharmacist')->count();
-        $totalPharmacies = Pharmacy::count();
-        $pendingPharmacies = Pharmacy::where('is_verified', false)->count();
-        $validAuthorizationNumbers = AuthorizationNumber::valid()->notExpired()->count();
+        $allUsers = User::all();
+        $allPharmacies = Pharmacy::all();
+        $allAuthNumbers = AuthorizationNumber::all();
+        
+        $totalUsers = $allUsers->count();
+        $totalPharmacists = $allUsers->where('role', 'pharmacist')->count();
+        $totalPharmacies = $allPharmacies->count();
+        $pendingPharmacies = $allPharmacies->where('is_verified', false)->count();
+        
+        $validAuthNumbers = $allAuthNumbers->filter(function ($auth) {
+            return $auth->is_valid && (!$auth->expires_at || (is_string($auth->expires_at) ? new \DateTime($auth->expires_at) : $auth->expires_at) > now());
+        });
+        $validAuthorizationNumbers = $validAuthNumbers->count();
         
         // Récupérer les pharmacies récentes
-        $recentPharmacies = Pharmacy::with('pharmacist')
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
+        $recentPharmacies = $allPharmacies
+            ->sortByDesc(function ($pharmacy) {
+                return $pharmacy->created_at ?? '';
+            })
+            ->take(5)
+            ->values();
             
         // Récupérer les utilisateurs récents
-        $recentUsers = User::orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
+        $recentUsers = $allUsers
+            ->sortByDesc(function ($user) {
+                return $user->created_at ?? '';
+            })
+            ->take(5)
+            ->values();
 
         return view('admin.dashboard', compact(
             'totalUsers', 'totalPharmacists', 'totalPharmacies',
@@ -59,30 +72,47 @@ class AdminController extends Controller
      */
     public function users(Request $request)
     {
-        $query = User::query();
+        $allUsers = User::all();
 
         // Filtres
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+            $search = strtolower($request->search);
+            $allUsers = $allUsers->filter(function ($user) use ($search) {
+                return stripos($user->name ?? '', $search) !== false || 
+                       stripos($user->email ?? '', $search) !== false;
             });
         }
 
         if ($request->filled('role')) {
-            $query->where('role', $request->role);
+            $allUsers = $allUsers->where('role', $request->role);
         }
 
         if ($request->filled('status')) {
             if ($request->status === 'completed') {
-                $query->where('profile_completed', true);
+                $allUsers = $allUsers->where('profile_completed', true);
             } elseif ($request->status === 'incomplete') {
-                $query->where('profile_completed', false);
+                $allUsers = $allUsers->where('profile_completed', false);
             }
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(15);
+        $users = $allUsers
+            ->sortByDesc(function ($user) {
+                return $user->created_at ?? '';
+            })
+            ->values();
+
+        // Pagination manuelle
+        $page = $request->get('page', 1);
+        $perPage = 15;
+        $total = $users->count();
+        $items = $users->forPage($page, $perPage);
+        $users = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('admin.users.index', compact('users'));
     }
@@ -102,7 +132,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:user,pharmacist,admin',
             'authorization_number' => 'nullable|string|max:255',
@@ -110,23 +140,29 @@ class AdminController extends Controller
             'email_verified' => 'boolean',
         ]);
 
-        $userData = [
+        // Vérifier l'unicité de l'email
+        $existingUser = User::whereEmail($request->email)->first();
+        if ($existingUser) {
+            return back()->withErrors(['email' => 'Cet email est déjà utilisé.'])->withInput();
+        }
+
+        $user = new User([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
             'profile_completed' => $request->has('profile_completed'),
-        ];
+        ]);
 
         if ($request->filled('authorization_number')) {
-            $userData['authorization_number'] = $request->authorization_number;
+            $user->authorization_number = $request->authorization_number;
         }
 
         if ($request->has('email_verified')) {
-            $userData['email_verified_at'] = now();
+            $user->email_verified_at = now();
         }
 
-        User::create($userData);
+        $user->save();
 
         return redirect()->route('admin.users')->with('success', 'Utilisateur créé avec succès.');
     }
@@ -134,27 +170,31 @@ class AdminController extends Controller
     /**
      * Afficher les détails d'un utilisateur
      */
-    public function showUser(User $user)
+    public function showUser($id)
     {
+        $user = User::findOrFail($id);
         return view('admin.users.show', compact('user'));
     }
 
     /**
      * Afficher le formulaire d'édition d'utilisateur
      */
-    public function editUser(User $user)
+    public function editUser($id)
     {
+        $user = User::findOrFail($id);
         return view('admin.users.edit', compact('user'));
     }
 
     /**
      * Mettre à jour un utilisateur
      */
-    public function updateUser(Request $request, User $user)
+    public function updateUser(Request $request, $id)
     {
+        $user = User::findOrFail($id);
+        
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255',
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|in:user,pharmacist,admin',
             'authorization_number' => 'nullable|string|max:255',
@@ -163,28 +203,34 @@ class AdminController extends Controller
             'is_active' => 'boolean',
         ]);
 
-        $userData = [
+        // Vérifier l'unicité de l'email
+        $existingUser = User::whereEmail($request->email)->first();
+        if ($existingUser && $existingUser->id !== $user->id) {
+            return back()->withErrors(['email' => 'Cet email est déjà utilisé.'])->withInput();
+        }
+
+        $user->fill([
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
             'profile_completed' => $request->has('profile_completed'),
-        ];
+        ]);
 
         if ($request->filled('password')) {
-            $userData['password'] = Hash::make($request->password);
+            $user->password = Hash::make($request->password);
         }
 
         if ($request->filled('authorization_number')) {
-            $userData['authorization_number'] = $request->authorization_number;
+            $user->authorization_number = $request->authorization_number;
         }
 
         if ($request->has('email_verified')) {
-            $userData['email_verified_at'] = now();
+            $user->email_verified_at = now();
         } else {
-            $userData['email_verified_at'] = null;
+            $user->email_verified_at = null;
         }
 
-        $user->update($userData);
+        $user->save();
 
         return redirect()->route('admin.users.show', $user)->with('success', 'Utilisateur mis à jour avec succès.');
     }
@@ -192,8 +238,9 @@ class AdminController extends Controller
     /**
      * Supprimer un utilisateur
      */
-    public function destroyUser(User $user)
+    public function destroyUser($id)
     {
+        $user = User::findOrFail($id);
         $user->delete();
         return redirect()->route('admin.users')->with('success', 'Utilisateur supprimé avec succès.');
     }
@@ -203,43 +250,62 @@ class AdminController extends Controller
      */
     public function pharmacies(Request $request)
     {
-        $query = Pharmacy::with('pharmacist');
+        $allPharmacies = Pharmacy::all();
 
         // Filtres
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%")
-                  ->orWhere('city', 'like', "%{$search}%");
+            $search = strtolower($request->search);
+            $allPharmacies = $allPharmacies->filter(function ($pharmacy) use ($search) {
+                return stripos($pharmacy->name ?? '', $search) !== false ||
+                       stripos($pharmacy->address ?? '', $search) !== false ||
+                       stripos($pharmacy->city ?? '', $search) !== false;
             });
         }
 
         if ($request->filled('status')) {
             if ($request->status === 'active') {
-                $query->where('is_active', true);
+                $allPharmacies = $allPharmacies->where('is_active', true);
             } elseif ($request->status === 'inactive') {
-                $query->where('is_active', false);
+                $allPharmacies = $allPharmacies->where('is_active', false);
             }
         }
 
         if ($request->filled('verification')) {
             if ($request->verification === 'verified') {
-                $query->where('is_verified', true);
+                $allPharmacies = $allPharmacies->where('is_verified', true);
             } elseif ($request->verification === 'pending') {
-                $query->where('is_verified', false);
+                $allPharmacies = $allPharmacies->where('is_verified', false);
             }
         }
 
         if ($request->filled('city')) {
-            $query->where('city', 'like', "%{$request->city}%");
+            $allPharmacies = $allPharmacies->filter(function ($pharmacy) use ($request) {
+                return stripos($pharmacy->city ?? '', $request->city) !== false;
+            });
         }
 
         if ($request->filled('pharmacist')) {
-            $query->where('pharmacist_id', $request->pharmacist);
+            $allPharmacies = $allPharmacies->where('pharmacist_id', $request->pharmacist);
         }
 
-        $pharmacies = $query->orderBy('created_at', 'desc')->paginate(15);
+        $pharmacies = $allPharmacies
+            ->sortByDesc(function ($pharmacy) {
+                return $pharmacy->created_at ?? '';
+            })
+            ->values();
+
+        // Pagination manuelle
+        $page = $request->get('page', 1);
+        $perPage = 15;
+        $total = $pharmacies->count();
+        $items = $pharmacies->forPage($page, $perPage);
+        $pharmacies = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('admin.pharmacies.index', compact('pharmacies'));
     }
@@ -249,7 +315,8 @@ class AdminController extends Controller
      */
     public function createPharmacy()
     {
-        $pharmacists = User::where('role', 'pharmacist')->get();
+        $allUsers = User::all();
+        $pharmacists = $allUsers->where('role', 'pharmacist')->values();
         return view('admin.pharmacies.create', compact('pharmacists'));
     }
 
@@ -272,7 +339,7 @@ class AdminController extends Controller
             'whatsapp_number' => 'nullable|string|max:20',
             'opening_hours' => 'nullable|array',
             'services' => 'nullable|array',
-            'pharmacist_id' => 'required|exists:users,id',
+            'pharmacist_id' => 'required',
             'is_verified' => 'nullable|boolean',
             'is_active' => 'nullable|boolean',
         ]);
@@ -283,7 +350,7 @@ class AdminController extends Controller
             $openingHours = json_decode($openingHours, true);
         }
 
-        $pharmacy = Pharmacy::create([
+        $pharmacy = new Pharmacy([
             'name' => $request->name,
             'description' => $request->description,
             'address' => $request->address,
@@ -301,6 +368,7 @@ class AdminController extends Controller
             'is_verified' => $request->has('is_verified') ? $request->is_verified : true,
             'is_active' => $request->has('is_active') ? $request->is_active : true,
         ]);
+        $pharmacy->save();
 
         return redirect()->route('admin.pharmacies')
             ->with('success', 'Pharmacie créée avec succès !');
@@ -309,29 +377,31 @@ class AdminController extends Controller
     /**
      * Afficher les détails d'une pharmacie
      */
-    public function showPharmacy(Pharmacy $pharmacy)
+    public function showPharmacy($id)
     {
-        $pharmacy->load('pharmacist');
+        $pharmacy = Pharmacy::findOrFail($id);
         return view('admin.pharmacies.show', compact('pharmacy'));
     }
 
     /**
      * Afficher le formulaire d'édition d'une pharmacie
      */
-    public function editPharmacy(Pharmacy $pharmacy)
+    public function editPharmacy($id)
     {
-        $pharmacy->load('pharmacist');
+        $pharmacy = Pharmacy::findOrFail($id);
         return view('admin.pharmacies.edit', compact('pharmacy'));
     }
 
     /**
      * Mettre à jour une pharmacie
      */
-    public function updatePharmacy(Request $request, Pharmacy $pharmacy)
+    public function updatePharmacy(Request $request, $id)
     {
+        $pharmacy = Pharmacy::findOrFail($id);
+        
         $request->validate([
             'name' => 'required|string|max:255',
-            'pharmacist_id' => 'nullable|exists:users,id',
+            'pharmacist_id' => 'nullable',
             'address' => 'required|string|max:500',
             'city' => 'required|string|max:100',
             'postal_code' => 'required|string|max:10',
@@ -345,15 +415,21 @@ class AdminController extends Controller
             'is_verified' => 'boolean',
         ]);
 
-        $pharmacyData = $request->only([
-            'name', 'pharmacist_id', 'address', 'city', 'postal_code',
-            'phone', 'email', 'website', 'latitude', 'longitude', 'description'
+        $pharmacy->fill([
+            'name' => $request->name,
+            'pharmacist_id' => $request->pharmacist_id ?? $pharmacy->pharmacist_id,
+            'address' => $request->address,
+            'city' => $request->city,
+            'postal_code' => $request->postal_code,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+            'description' => $request->description,
+            'is_active' => $request->has('is_active'),
+            'is_verified' => $request->has('is_verified'),
         ]);
-
-        $pharmacyData['is_active'] = $request->has('is_active');
-        $pharmacyData['is_verified'] = $request->has('is_verified');
-
-        $pharmacy->update($pharmacyData);
+        $pharmacy->save();
 
         return redirect()->route('admin.pharmacies.show', $pharmacy)->with('success', 'Pharmacie mise à jour avec succès.');
     }
@@ -361,8 +437,9 @@ class AdminController extends Controller
     /**
      * Supprimer une pharmacie
      */
-    public function destroyPharmacy(Pharmacy $pharmacy)
+    public function destroyPharmacy($id)
     {
+        $pharmacy = Pharmacy::findOrFail($id);
         $pharmacy->delete();
         return redirect()->route('admin.pharmacies')->with('success', 'Pharmacie supprimée avec succès.');
     }
@@ -370,9 +447,11 @@ class AdminController extends Controller
     /**
      * Basculer le statut de vérification d'une pharmacie
      */
-    public function togglePharmacyVerification(Pharmacy $pharmacy)
+    public function togglePharmacyVerification($id)
     {
-        $pharmacy->update(['is_verified' => !$pharmacy->is_verified]);
+        $pharmacy = Pharmacy::findOrFail($id);
+        $pharmacy->is_verified = !$pharmacy->is_verified;
+        $pharmacy->save();
         
         $status = $pharmacy->is_verified ? 'vérifiée' : 'non vérifiée';
         return redirect()->back()->with('success', "Pharmacie marquée comme {$status}.");
@@ -381,9 +460,11 @@ class AdminController extends Controller
     /**
      * Basculer le statut actif d'une pharmacie
      */
-    public function togglePharmacyStatus(Pharmacy $pharmacy)
+    public function togglePharmacyStatus($id)
     {
-        $pharmacy->update(['is_active' => !$pharmacy->is_active]);
+        $pharmacy = Pharmacy::findOrFail($id);
+        $pharmacy->is_active = !$pharmacy->is_active;
+        $pharmacy->save();
         
         $status = $pharmacy->is_active ? 'active' : 'inactive';
         return redirect()->back()->with('success', "Pharmacie marquée comme {$status}.");
@@ -395,8 +476,25 @@ class AdminController extends Controller
      */
     public function authorizationNumbers()
     {
-        $authorizationNumbers = AuthorizationNumber::orderBy('created_at', 'desc')
-            ->paginate(15);
+        $allAuthNumbers = AuthorizationNumber::all();
+        $authorizationNumbers = $allAuthNumbers
+            ->sortByDesc(function ($auth) {
+                return $auth->created_at ?? '';
+            })
+            ->values();
+
+        // Pagination manuelle
+        $page = request()->get('page', 1);
+        $perPage = 15;
+        $total = $authorizationNumbers->count();
+        $items = $authorizationNumbers->forPage($page, $perPage);
+        $authorizationNumbers = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items,
+            $total,
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
         return view('admin.authorization-numbers.index', compact('authorizationNumbers'));
     }
@@ -415,13 +513,21 @@ class AdminController extends Controller
     public function storeAuthorizationNumber(Request $request)
     {
         $request->validate([
-            'number' => 'required|string|max:255|unique:authorization_numbers',
+            'number' => 'required|string|max:255',
             'pharmacist_name' => 'nullable|string|max:255',
             'pharmacy_name' => 'nullable|string|max:255',
             'expires_at' => 'nullable|date|after:today',
         ]);
 
-        AuthorizationNumber::create($request->all());
+        // Vérifier l'unicité du numéro
+        $existing = AuthorizationNumber::all()->where('number', $request->number)->first();
+        if ($existing) {
+            return back()->withErrors(['number' => 'Ce numéro d\'autorisation existe déjà.'])->withInput();
+        }
+
+        $authNumber = new AuthorizationNumber($request->all());
+        $authNumber->is_valid = true;
+        $authNumber->save();
 
         return redirect()->route('admin.authorization-numbers')
             ->with('success', 'Numéro d\'autorisation créé avec succès.');
@@ -430,25 +536,35 @@ class AdminController extends Controller
     /**
      * Modifier un numéro d'autorisation
      */
-    public function editAuthorizationNumber(AuthorizationNumber $authorizationNumber)
+    public function editAuthorizationNumber($id)
     {
+        $authorizationNumber = AuthorizationNumber::findOrFail($id);
         return view('admin.authorization-numbers.edit', compact('authorizationNumber'));
     }
 
     /**
      * Mettre à jour un numéro d'autorisation
      */
-    public function updateAuthorizationNumber(Request $request, AuthorizationNumber $authorizationNumber)
+    public function updateAuthorizationNumber(Request $request, $id)
     {
+        $authorizationNumber = AuthorizationNumber::findOrFail($id);
+        
         $request->validate([
-            'number' => 'required|string|max:255|unique:authorization_numbers,number,' . $authorizationNumber->id,
+            'number' => 'required|string|max:255',
             'pharmacist_name' => 'nullable|string|max:255',
             'pharmacy_name' => 'nullable|string|max:255',
             'expires_at' => 'nullable|date|after:today',
             'is_valid' => 'boolean',
         ]);
 
-        $authorizationNumber->update($request->all());
+        // Vérifier l'unicité du numéro
+        $existing = AuthorizationNumber::all()->where('number', $request->number)->first();
+        if ($existing && $existing->id !== $authorizationNumber->id) {
+            return back()->withErrors(['number' => 'Ce numéro d\'autorisation existe déjà.'])->withInput();
+        }
+
+        $authorizationNumber->fill($request->all());
+        $authorizationNumber->save();
 
         return redirect()->route('admin.authorization-numbers')
             ->with('success', 'Numéro d\'autorisation mis à jour avec succès.');
@@ -457,9 +573,11 @@ class AdminController extends Controller
     /**
      * Basculer la validité d'un numéro d'autorisation
      */
-    public function toggleAuthorizationNumberValidity(AuthorizationNumber $authorizationNumber)
+    public function toggleAuthorizationNumberValidity($id)
     {
-        $authorizationNumber->update(['is_valid' => !$authorizationNumber->is_valid]);
+        $authorizationNumber = AuthorizationNumber::findOrFail($id);
+        $authorizationNumber->is_valid = !$authorizationNumber->is_valid;
+        $authorizationNumber->save();
         
         $status = $authorizationNumber->is_valid ? 'valide' : 'invalide';
         return redirect()->back()->with('success', "Numéro d'autorisation marqué comme {$status}.");
@@ -468,8 +586,9 @@ class AdminController extends Controller
     /**
      * Supprimer un numéro d'autorisation
      */
-    public function destroyAuthorizationNumber(AuthorizationNumber $authorizationNumber)
+    public function destroyAuthorizationNumber($id)
     {
+        $authorizationNumber = AuthorizationNumber::findOrFail($id);
         $authorizationNumber->delete();
 
         return redirect()->route('admin.authorization-numbers')

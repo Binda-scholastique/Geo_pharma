@@ -44,7 +44,7 @@
     </div>
     
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form method="POST" action="{{ route('pharmacist.update-pharmacy', $pharmacy) }}" class="space-y-8" id="pharmacyForm">
+        <form method="POST" action="{{ route('pharmacist.update-pharmacy', $pharmacy->id) }}" class="space-y-8" id="pharmacyForm">
             @csrf
             @method('PUT')
             

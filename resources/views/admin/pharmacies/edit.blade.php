@@ -14,7 +14,7 @@
             <p class="text-muted mb-0">Modifier les informations de {{ $pharmacy->name }}</p>
         </div>
         <div>
-            <a href="{{ route('admin.pharmacies.show', $pharmacy) }}" class="btn btn-info me-2">
+            <a href="{{ route('admin.pharmacies.show', $pharmacy->id) }}" class="btn btn-info me-2">
                 <i class="fas fa-eye mr-2"></i>
                 Voir les détails
             </a>
@@ -36,7 +36,7 @@
                     </h6>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.pharmacies.update', $pharmacy) }}" method="POST">
+                    <form action="{{ route('admin.pharmacies.update', $pharmacy->id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         
@@ -204,7 +204,7 @@
                         </div>
 
                         <div class="d-flex justify-content-end">
-                            <a href="{{ route('admin.pharmacies.show', $pharmacy) }}" class="btn btn-secondary me-2">
+                            <a href="{{ route('admin.pharmacies.show', $pharmacy->id) }}" class="btn btn-secondary me-2">
                                 <i class="fas fa-times mr-2"></i>
                                 Annuler
                             </a>
@@ -269,7 +269,7 @@
 
                     <div class="mb-3">
                         <label class="form-label font-weight-bold">Créée le</label>
-                        <p class="form-control-plaintext">{{ $pharmacy->created_at->format('d/m/Y à H:i') }}</p>
+                        <p class="form-control-plaintext">{{ $pharmacy->created_at ? $pharmacy->created_at->format('d/m/Y à H:i') : '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -284,12 +284,12 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ route('admin.pharmacies.show', $pharmacy) }}" class="btn btn-info">
+                        <a href="{{ route('admin.pharmacies.show', $pharmacy->id) }}" class="btn btn-info">
                             <i class="fas fa-eye mr-2"></i>
                             Voir les détails
                         </a>
                         
-                        <form action="{{ route('admin.pharmacies.toggle-verification', $pharmacy) }}" method="POST" class="d-inline">
+                        <form action="{{ route('admin.pharmacies.toggle-verification', $pharmacy->id) }}" method="POST" class="d-inline">
                             @csrf
                             <button type="submit" class="btn {{ $pharmacy->is_verified ? 'btn-warning' : 'btn-success' }} w-100">
                                 <i class="fas {{ $pharmacy->is_verified ? 'fa-times' : 'fa-check' }} mr-2"></i>
@@ -297,7 +297,7 @@
                             </button>
                         </form>
 
-                        <form action="{{ route('admin.pharmacies.toggle-status', $pharmacy) }}" method="POST" class="d-inline">
+                        <form action="{{ route('admin.pharmacies.toggle-status', $pharmacy->id) }}" method="POST" class="d-inline">
                             @csrf
                             <button type="submit" class="btn {{ $pharmacy->is_active ? 'btn-secondary' : 'btn-primary' }} w-100">
                                 <i class="fas {{ $pharmacy->is_active ? 'fa-pause' : 'fa-play' }} mr-2"></i>
@@ -306,7 +306,7 @@
                         </form>
 
                         <button type="button" class="btn btn-danger" 
-                                onclick="confirmDelete('{{ route('admin.pharmacies.destroy', $pharmacy) }}', '{{ $pharmacy->name }}')">
+                                onclick="confirmDelete('{{ route('admin.pharmacies.destroy', $pharmacy->id) }}', '{{ $pharmacy->name }}')">
                             <i class="fas fa-trash mr-2"></i>
                             Supprimer la pharmacie
                         </button>

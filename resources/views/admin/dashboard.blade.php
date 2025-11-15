@@ -148,7 +148,7 @@
                                 </div>
                                 <div>
                                     <h4 class="font-medium text-gray-800">{{ $pharmacy->name }}</h4>
-                                    <p class="text-sm text-gray-600">{{ $pharmacy->pharmacist->name }}</p>
+                                    <p class="text-sm text-gray-600">{{ $pharmacy->pharmacist ? $pharmacy->pharmacist->name : 'Non assigné' }}</p>
                                 </div>
                             </div>
                             <div class="text-right">
@@ -161,7 +161,7 @@
                                         <i class="fas fa-clock mr-1"></i>En attente
                                     </span>
                                 @endif
-                                <p class="text-xs text-gray-500 mt-1">{{ $pharmacy->created_at->format('d/m/Y') }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ $pharmacy->created_at ? $pharmacy->created_at->format('d/m/Y') : '-' }}</p>
                             </div>
                         </div>
                         @endforeach
@@ -212,7 +212,7 @@
                                         <i class="fas fa-user mr-1"></i>Utilisateur
                                     </span>
                                 @endif
-                                <p class="text-xs text-gray-500 mt-1">{{ $user->created_at->format('d/m/Y') }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ $user->created_at ? $user->created_at->format('d/m/Y') : '-' }}</p>
                             </div>
                         </div>
                         @endforeach

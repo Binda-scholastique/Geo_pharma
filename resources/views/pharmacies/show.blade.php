@@ -97,6 +97,7 @@
                                 </div>
                             @endif
                             
+                            @if($pharmacy->pharmacist)
                             <div class="flex items-center">
                                 <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
                                     <i class="fas fa-user-md text-purple-600"></i>
@@ -106,22 +107,71 @@
                                     <p class="font-semibold text-gray-800">{{ $pharmacy->pharmacist->name }}</p>
                                 </div>
                             </div>
+                            @else
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
+                                    <i class="fas fa-user-md text-purple-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Pharmacien</p>
+                                    <p class="font-semibold text-gray-400">Non assigné</p>
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
                 
                 <!-- Opening Hours -->
-                @if($pharmacy->opening_hours)
+                @if($pharmacy->opening_hours && is_array($pharmacy->opening_hours))
                     <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
                         <h2 class="text-2xl font-bold text-gray-800 mb-6">
                             <i class="fas fa-clock text-orange-500 mr-2"></i>Horaires d'ouverture
                         </h2>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            @foreach($pharmacy->opening_hours as $day => $hours)
+                            @php
+                                $dayNames = [
+                                    'lundi' => 'Lundi',
+                                    'mardi' => 'Mardi',
+                                    'mercredi' => 'Mercredi',
+                                    'jeudi' => 'Jeudi',
+                                    'vendredi' => 'Vendredi',
+                                    'samedi' => 'Samedi',
+                                    'dimanche' => 'Dimanche'
+                                ];
+                            @endphp
+                            @foreach($dayNames as $dayKey => $dayName)
+                                @php
+                                    $hours = $pharmacy->opening_hours[$dayKey] ?? null;
+                                    $formattedHours = '';
+                                    
+                                    if ($hours) {
+                                        // Vérifier si c'est un mode séparé (avec morning/afternoon)
+                                        if (isset($hours['morning']) && isset($hours['afternoon'])) {
+                                            $morning = $hours['morning'];
+                                            $afternoon = $hours['afternoon'];
+                                            if (isset($morning['start']) && isset($morning['end']) && 
+                                                isset($afternoon['start']) && isset($afternoon['end'])) {
+                                                $formattedHours = $morning['start'] . ' - ' . $morning['end'] . ' / ' . 
+                                                                  $afternoon['start'] . ' - ' . $afternoon['end'];
+                                            }
+                                        } 
+                                        // Mode simple (avec start/end)
+                                        elseif (isset($hours['start']) && isset($hours['end'])) {
+                                            $formattedHours = $hours['start'] . ' - ' . $hours['end'];
+                                        }
+                                        // Si c'est fermé ou format inconnu
+                                        elseif (isset($hours['closed']) && $hours['closed']) {
+                                            $formattedHours = 'Fermé';
+                                        }
+                                    } else {
+                                        $formattedHours = 'Non renseigné';
+                                    }
+                                @endphp
                                 <div class="flex justify-between items-center py-2 border-b border-gray-100">
-                                    <span class="font-medium text-gray-700">{{ ucfirst($day) }}</span>
-                                    <span class="text-gray-600">{{ $hours }}</span>
+                                    <span class="font-medium text-gray-700">{{ $dayName }}</span>
+                                    <span class="text-gray-600">{{ $formattedHours }}</span>
                                 </div>
                             @endforeach
                         </div>
@@ -221,29 +271,68 @@
 <script>
 // Initialiser la carte pour cette pharmacie
 function initPharmacyMap() {
-    const pharmacy = @json($pharmacy);
+    // Passer les coordonnées explicitement pour éviter les problèmes de sérialisation
+    const latitude = {{ $pharmacy->latitude ?? 'null' }};
+    const longitude = {{ $pharmacy->longitude ?? 'null' }};
+    const pharmacyName = @json($pharmacy->name ?? '');
+    const pharmacyAddress = @json($pharmacy->address ?? '');
     
-    const map = L.map('pharmacy-map').setView([pharmacy.latitude, pharmacy.longitude], 15);
+    // Debug: afficher les valeurs dans la console
+    console.log('Latitude:', latitude, 'Type:', typeof latitude);
+    console.log('Longitude:', longitude, 'Type:', typeof longitude);
+    
+    // Si les coordonnées ne sont pas valides, utiliser Kinshasa par défaut
+    const defaultLat = -4.3276;
+    const defaultLng = 15.3136;
+    
+    // Convertir en nombres si ce sont des chaînes
+    const latNum = (latitude !== null && latitude !== undefined) ? parseFloat(latitude) : null;
+    const lngNum = (longitude !== null && longitude !== undefined) ? parseFloat(longitude) : null;
+    
+    const mapLat = (!isNaN(latNum) && latNum !== null) ? latNum : defaultLat;
+    const mapLng = (!isNaN(lngNum) && lngNum !== null) ? lngNum : defaultLng;
+    
+    // Initialiser la carte
+    const map = L.map('pharmacy-map').setView([mapLat, mapLng], 15);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
     
-    // Ajouter un marqueur pour cette pharmacie
-    L.marker([pharmacy.latitude, pharmacy.longitude])
-        .addTo(map)
-        .bindPopup(`
-            <div class="p-2">
-                <h4 class="font-bold">${pharmacy.name}</h4>
-                <p class="text-sm text-gray-600">${pharmacy.address}</p>
-            </div>
-        `)
-        .openPopup();
+    // Ajouter un marqueur seulement si les coordonnées sont valides
+    if (!isNaN(latNum) && !isNaN(lngNum) && latNum !== null && lngNum !== null) {
+        L.marker([latNum, lngNum])
+            .addTo(map)
+            .bindPopup(`
+                <div class="p-2">
+                    <h4 class="font-bold">${pharmacyName}</h4>
+                    <p class="text-sm text-gray-600">${pharmacyAddress}</p>
+                </div>
+            `)
+            .openPopup();
+    } else {
+        // Afficher un message si les coordonnées sont manquantes
+        L.marker([mapLat, mapLng])
+            .addTo(map)
+            .bindPopup(`
+                <div class="p-2">
+                    <h4 class="font-bold">${pharmacyName}</h4>
+                    <p class="text-sm text-gray-600">${pharmacyAddress}</p>
+                    <p class="text-xs text-yellow-600 mt-1">⚠️ Coordonnées non disponibles (Lat: ${latitude}, Lng: ${longitude})</p>
+                </div>
+            `)
+            .openPopup();
+    }
 }
 
 // Initialiser la carte au chargement de la page
 document.addEventListener('DOMContentLoaded', function() {
-    initPharmacyMap();
+    // Vérifier que Leaflet est chargé
+    if (typeof L !== 'undefined') {
+        initPharmacyMap();
+    } else {
+        console.error('Leaflet n\'est pas chargé');
+    }
 });
 </script>
 @endpush

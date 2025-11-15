@@ -93,10 +93,10 @@
                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500 sm:text-sm @error('authorization_number') border-red-500 @enderror"
                                placeholder="Votre numéro d'autorisation">
                     </div>
-                    <p class="mt-2 text-sm text-gray-500">
+                    <!-- <p class="mt-2 text-sm text-gray-500">
                         <i class="fas fa-info-circle mr-1"></i>
                         Ce numéro sera vérifié via notre API d'autorisation
-                    </p>
+                    </p> -->
                     @error('authorization_number')
                         <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                     @enderror

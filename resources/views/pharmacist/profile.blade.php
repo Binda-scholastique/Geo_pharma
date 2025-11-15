@@ -176,12 +176,12 @@
                         
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Membre depuis</span>
-                            <span class="text-sm font-medium text-gray-800">{{ Auth::user()->created_at->format('d/m/Y') }}</span>
+                            <span class="text-sm font-medium text-gray-800">{{ Auth::user()->created_at ? Auth::user()->created_at->format('d/m/Y') : '-' }}</span>
                         </div>
                         
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Dernière connexion</span>
-                            <span class="text-sm font-medium text-gray-800">{{ Auth::user()->updated_at->format('d/m/Y H:i') }}</span>
+                            <span class="text-sm font-medium text-gray-800">{{ Auth::user()->updated_at ? Auth::user()->updated_at->format('d/m/Y H:i') : '-' }}</span>
                         </div>
                     </div>
                 </div>
@@ -193,19 +193,22 @@
                     </h3>
                     
                     <div class="space-y-4">
+                        @php
+                            $userPharmacies = Auth::user()->pharmacies ?? collect([]);
+                        @endphp
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Pharmacies</span>
-                            <span class="text-lg font-bold text-gray-800">{{ Auth::user()->pharmacies->count() }}</span>
+                            <span class="text-lg font-bold text-gray-800">{{ $userPharmacies->count() }}</span>
                         </div>
                         
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Pharmacies actives</span>
-                            <span class="text-lg font-bold text-green-600">{{ Auth::user()->pharmacies->where('is_active', true)->count() }}</span>
+                            <span class="text-lg font-bold text-green-600">{{ $userPharmacies->where('is_active', true)->count() }}</span>
                         </div>
                         
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Pharmacies vérifiées</span>
-                            <span class="text-lg font-bold text-blue-600">{{ Auth::user()->pharmacies->where('is_verified', true)->count() }}</span>
+                            <span class="text-lg font-bold text-blue-600">{{ $userPharmacies->where('is_verified', true)->count() }}</span>
                         </div>
                     </div>
                 </div>
