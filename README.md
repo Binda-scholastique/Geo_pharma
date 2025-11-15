@@ -52,6 +52,17 @@ cd Geo_pharma
 composer install
 ```
 
+   ⚠️ **IMPORTANT** : Utilisez **`composer install`** et **PAS** `composer update` !
+   
+   - `composer install` installe les versions exactes définies dans `composer.lock` (garantit la même version pour tous)
+   - `composer update` met à jour les dépendances et modifie `composer.lock` (peut causer des différences de versions)
+   
+   Après l'installation, vérifiez que vous avez la bonne version :
+   ```bash
+   php artisan --version
+   ```
+   Vous devriez voir : **Laravel Framework 10.49.1**
+
 3. **Installer les dépendances JavaScript**
 ```bash
 npm install && npm run dev
@@ -87,6 +98,34 @@ php artisan serve
 ```
 
 L'application sera accessible à l'adresse `http://localhost:8000`
+
+### 🔧 Dépannage - Version de Laravel incorrecte
+
+Si après l'installation vous avez une version différente de Laravel (par exemple une version plus ancienne) :
+
+1. **Supprimez le dossier vendor et le fichier composer.lock local** :
+   ```bash
+   rm -rf vendor composer.lock
+   ```
+   (Sur Windows PowerShell : `Remove-Item -Recurse -Force vendor, composer.lock`)
+
+2. **Récupérez le composer.lock depuis GitLab** :
+   ```bash
+   git checkout composer.lock
+   ```
+
+3. **Réinstallez les dépendances** :
+   ```bash
+   composer install
+   ```
+
+4. **Vérifiez la version** :
+   ```bash
+   php artisan --version
+   ```
+   Vous devriez maintenant voir : **Laravel Framework 10.49.1**
+
+**Note** : Le fichier `composer.lock` est versionné dans Git pour garantir que tous les développeurs utilisent exactement les mêmes versions de dépendances. Ne le supprimez jamais et ne le modifiez pas manuellement.
 
 ## Structure du Projet
 
