@@ -22,9 +22,11 @@
                             <input type="text" 
                                    id="city-search" 
                                    placeholder="Rechercher par ville (ex: Kinshasa, Lubumbashi...)" 
-                                   class="w-full px-6 py-4 rounded-lg text-gray-800 search-input focus:outline-none focus:ring-2 focus:ring-yellow-300">
+                                   class="w-full px-6 py-4 rounded-lg text-gray-800 search-input focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                                   onkeypress="if(event.key === 'Enter') searchByCity()">
                         </div>
                         <button onclick="searchByCity()" 
+                                id="search-btn"
                                 class="btn-primary px-8 py-4 rounded-lg font-semibold text-white hover:shadow-lg transition-all duration-300">
                             <i class="fas fa-search mr-2"></i>Rechercher
                         </button>
@@ -94,6 +96,10 @@
                             <span class="font-bold text-green-600" id="total-pharmacies">{{ $pharmacies->count() }}</span>
                         </div>
                         <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Pharmacies trouvées</span>
+                            <span class="font-bold text-blue-600 text-lg" id="found-pharmacies-count">0</span>
+                        </div>
+                        <div class="flex items-center justify-between">
                             <span class="text-gray-600">Dans votre zone</span>
                             <span class="font-bold text-green-500" id="nearby-pharmacies">0</span>
                         </div>
@@ -108,8 +114,21 @@
     </div>
 </div>
 
+<!-- Loading Modal -->
+<div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden" style="z-index: 9999;">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-8">
+            <div class="text-center">
+                <div class="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-green-500 mb-4"></div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Recherche en cours...</h3>
+                <p class="text-gray-600" id="loading-message">Recherche des pharmacies dans la ville sélectionnée</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Pharmacy Details Modal -->
-<div id="pharmacy-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+<div id="pharmacy-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden" style="z-index: 9998;">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl max-w-2xl w-full max-h-96 overflow-y-auto">
             <div class="p-6">
@@ -156,12 +175,76 @@ async function loadPharmacies() {
         const data = await response.json();
         
         if (data.success) {
-            displayPharmacies(data.pharmacies);
+            const displayedCount = displayPharmacies(data.pharmacies);
             updateStats(data.pharmacies.length);
+            if (displayedCount < data.pharmacies.length) {
+                console.warn(`${data.pharmacies.length - displayedCount} pharmacie(s) sans coordonnées valides`);
+            }
         }
     } catch (error) {
         console.error('Erreur lors du chargement des pharmacies:', error);
     }
+}
+
+// Fonction helper pour extraire et valider les coordonnées
+function extractCoordinates(pharmacy) {
+    let lat = null;
+    let lng = null;
+    
+    // Essayer différents formats de coordonnées
+    if (pharmacy.latitude !== null && pharmacy.latitude !== undefined) {
+        // Si c'est un nombre
+        if (typeof pharmacy.latitude === 'number') {
+            lat = pharmacy.latitude;
+        }
+        // Si c'est une chaîne
+        else if (typeof pharmacy.latitude === 'string') {
+            lat = parseFloat(pharmacy.latitude);
+        }
+        // Si c'est un objet (cas Firestore)
+        else if (typeof pharmacy.latitude === 'object' && pharmacy.latitude.doubleValue !== undefined) {
+            lat = parseFloat(pharmacy.latitude.doubleValue);
+        } else if (typeof pharmacy.latitude === 'object' && pharmacy.latitude.stringValue !== undefined) {
+            lat = parseFloat(pharmacy.latitude.stringValue);
+        }
+    }
+    
+    if (pharmacy.longitude !== null && pharmacy.longitude !== undefined) {
+        // Si c'est un nombre
+        if (typeof pharmacy.longitude === 'number') {
+            lng = pharmacy.longitude;
+        }
+        // Si c'est une chaîne
+        else if (typeof pharmacy.longitude === 'string') {
+            lng = parseFloat(pharmacy.longitude);
+        }
+        // Si c'est un objet (cas Firestore)
+        else if (typeof pharmacy.longitude === 'object' && pharmacy.longitude.doubleValue !== undefined) {
+            lng = parseFloat(pharmacy.longitude.doubleValue);
+        } else if (typeof pharmacy.longitude === 'object' && pharmacy.longitude.stringValue !== undefined) {
+            lng = parseFloat(pharmacy.longitude.stringValue);
+        }
+    }
+    
+    // Valider les coordonnées - vérifier que lat et lng ne sont pas null
+    if (lat === null || lng === null || isNaN(lat) || isNaN(lng)) {
+        return null;
+    }
+    
+    // Vérifier les limites géographiques
+    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+        return null;
+    }
+    
+    // Vérification finale que les valeurs sont des nombres valides
+    const finalLat = parseFloat(lat);
+    const finalLng = parseFloat(lng);
+    
+    if (isNaN(finalLat) || isNaN(finalLng)) {
+        return null;
+    }
+    
+    return { lat: finalLat, lng: finalLng };
 }
 
 // Afficher les pharmacies sur la carte
@@ -170,30 +253,122 @@ function displayPharmacies(pharmacies) {
     markers.forEach(marker => map.removeLayer(marker));
     markers = [];
     
-    // Ajouter les nouveaux marqueurs
+    if (!pharmacies || pharmacies.length === 0) {
+        console.log('Aucune pharmacie à afficher');
+        return 0;
+    }
+    
+    // Filtrer et valider les pharmacies avec des coordonnées valides
+    const validPharmacies = [];
+    const invalidPharmacies = [];
+    
     pharmacies.forEach(pharmacy => {
-        const marker = L.marker([pharmacy.latitude, pharmacy.longitude])
-            .addTo(map)
-            .bindPopup(`
-                <div class="p-2">
-                    <h4 class="font-bold text-lg">${pharmacy.name}</h4>
-                    <p class="text-gray-600">${pharmacy.address}, ${pharmacy.city}</p>
-                    <p class="text-sm text-blue-600">${pharmacy.phone}</p>
-                    <button onclick="showPharmacyDetails(${pharmacy.id})" 
-                            class="mt-2 bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
-                        Voir détails
-                    </button>
-                </div>
-            `);
+        const coords = extractCoordinates(pharmacy);
         
-        markers.push(marker);
+        // Vérifier que coords n'est pas null et que les valeurs sont valides
+        if (coords && coords.lat !== null && coords.lng !== null && 
+            !isNaN(coords.lat) && !isNaN(coords.lng) &&
+            coords.lat >= -90 && coords.lat <= 90 &&
+            coords.lng >= -180 && coords.lng <= 180) {
+            pharmacy._validLat = coords.lat;
+            pharmacy._validLng = coords.lng;
+            validPharmacies.push(pharmacy);
+        } else {
+            // Debug pour voir pourquoi les coordonnées sont invalides
+            console.log('Pharmacie sans coordonnées valides:', {
+                id: pharmacy.id,
+                name: pharmacy.name,
+                latitude: pharmacy.latitude,
+                longitude: pharmacy.longitude,
+                latType: typeof pharmacy.latitude,
+                lngType: typeof pharmacy.longitude,
+                extractedCoords: coords
+            });
+            invalidPharmacies.push(pharmacy);
+        }
     });
     
-    // Ajuster la vue pour afficher tous les marqueurs
-    if (pharmacies.length > 0) {
+    // Afficher un avertissement si certaines pharmacies ont été filtrées
+    if (invalidPharmacies.length > 0) {
+        console.warn(`${invalidPharmacies.length} pharmacie(s) sans coordonnées valides ont été exclues de la carte`);
+        console.log('Pharmacies exclues:', invalidPharmacies.map(p => ({ id: p.id, name: p.name, lat: p.latitude, lng: p.longitude })));
+    }
+    
+    // Ajouter les nouveaux marqueurs uniquement pour les pharmacies valides
+    validPharmacies.forEach(pharmacy => {
+        // Vérification supplémentaire avant de créer le marqueur
+        if (pharmacy._validLat === null || pharmacy._validLng === null || 
+            isNaN(pharmacy._validLat) || isNaN(pharmacy._validLng)) {
+            console.warn('Pharmacie avec coordonnées invalides ignorée:', {
+                id: pharmacy.id,
+                name: pharmacy.name,
+                _validLat: pharmacy._validLat,
+                _validLng: pharmacy._validLng
+            });
+            return; // Ignorer cette pharmacie
+        }
+        
+        try {
+            const lat = parseFloat(pharmacy._validLat);
+            const lng = parseFloat(pharmacy._validLng);
+            
+            // Vérification finale des coordonnées
+            if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                console.warn('Coordonnées hors limites pour la pharmacie:', {
+                    id: pharmacy.id,
+                    name: pharmacy.name,
+                    lat: lat,
+                    lng: lng
+                });
+                return; // Ignorer cette pharmacie
+            }
+            
+            const marker = L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup(`
+                    <div class="p-2">
+                        <h4 class="font-bold text-lg">${pharmacy.name || 'Pharmacie'}</h4>
+                        <p class="text-gray-600">${pharmacy.address || ''}, ${pharmacy.city || ''}</p>
+                        ${pharmacy.phone ? `<p class="text-sm text-blue-600">${pharmacy.phone}</p>` : ''}
+                        <button onclick="showPharmacyDetails('${pharmacy.id}')" 
+                                class="mt-2 bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600">
+                            Voir détails
+                        </button>
+                    </div>
+                `);
+            
+            markers.push(marker);
+        } catch (error) {
+            console.error('Erreur lors de la création du marqueur pour la pharmacie:', pharmacy.id, error, {
+                name: pharmacy.name,
+                _validLat: pharmacy._validLat,
+                _validLng: pharmacy._validLng,
+                latitude: pharmacy.latitude,
+                longitude: pharmacy.longitude
+            });
+        }
+    });
+    
+    // Ajuster la vue pour afficher tous les marqueurs valides
+    if (markers.length > 0) {
+        try {
         const group = new L.featureGroup(markers);
         map.fitBounds(group.getBounds().pad(0.1));
+        } catch (error) {
+            console.error('Erreur lors de l\'ajustement de la vue:', error);
+            // Si l'ajustement échoue, centrer sur le premier marqueur
+            if (markers.length > 0) {
+                const firstMarker = markers[0];
+                map.setView(firstMarker.getLatLng(), 13);
+            }
+        }
+    } else if (validPharmacies.length > 0 && markers.length === 0) {
+        // Si aucune pharmacie n'a pu être affichée mais qu'il y en a, centrer sur une position par défaut
+        console.warn('Aucun marqueur n\'a pu être créé malgré des pharmacies valides. Vérifiez les coordonnées.');
     }
+    
+    // Mettre à jour le nombre de pharmacies affichées (seulement celles avec marqueurs créés)
+    return markers.length;
 }
 
 // Obtenir la position actuelle de l'utilisateur
@@ -233,6 +408,9 @@ async function searchNearbyPharmacies() {
     
     const radius = document.getElementById('radius-select').value;
     
+    // Afficher le modal de chargement
+    showLoadingModal(`Recherche des pharmacies dans un rayon de ${radius} km...`);
+    
     try {
         const response = await fetch('/pharmacies/search', {
             method: 'POST',
@@ -247,15 +425,48 @@ async function searchNearbyPharmacies() {
             })
         });
         
+        // Vérifier si la réponse est OK
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Erreur HTTP:', response.status, errorText);
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        
         const data = await response.json();
         
         if (data.success) {
-            displayPharmacies(data.pharmacies);
-            updateNearbyStats(data.pharmacies.length);
+            // Afficher les pharmacies et obtenir le nombre de pharmacies affichées sur la carte
+            const displayedCount = displayPharmacies(data.pharmacies);
+            updateNearbyStats(displayedCount);
+            updateFoundPharmaciesCount(data.pharmacies.length);
+            
+            if (data.pharmacies.length === 0) {
+                alert(`Aucune pharmacie trouvée dans un rayon de ${radius} km`);
+            } else if (displayedCount === 0 && data.pharmacies.length > 0) {
+                alert(`${data.pharmacies.length} pharmacie(s) trouvée(s), mais aucune n'a de coordonnées valides pour l'affichage sur la carte.`);
+            }
+        } else {
+            const errorMessage = data.message || 'Erreur lors de la recherche';
+            console.error('Erreur de recherche:', errorMessage);
+            alert(errorMessage);
         }
     } catch (error) {
         console.error('Erreur lors de la recherche:', error);
+        alert('Une erreur est survenue lors de la recherche. Veuillez réessayer.');
+    } finally {
+        hideLoadingModal();
     }
+}
+
+// Afficher le modal de chargement
+function showLoadingModal(message = 'Recherche en cours...') {
+    document.getElementById('loading-message').textContent = message;
+    document.getElementById('loading-modal').classList.remove('hidden');
+}
+
+// Masquer le modal de chargement
+function hideLoadingModal() {
+    document.getElementById('loading-modal').classList.add('hidden');
 }
 
 // Rechercher par ville
@@ -267,24 +478,75 @@ async function searchByCity() {
         return;
     }
     
+    // Désactiver le bouton de recherche
+    const searchBtn = document.getElementById('search-btn');
+    const originalText = searchBtn.innerHTML;
+    searchBtn.disabled = true;
+    searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Recherche...';
+    
+    // Afficher le modal de chargement
+    showLoadingModal(`Recherche des pharmacies à ${city}...`);
+    
     try {
+        // Préparer les données à envoyer
+        const requestData = { city: city };
+        
+        // Si la position de l'utilisateur est disponible, l'inclure pour améliorer la recherche
+        if (currentLocation) {
+            requestData.latitude = currentLocation.lat;
+            requestData.longitude = currentLocation.lng;
+            const radius = document.getElementById('radius-select').value;
+            requestData.radius = parseInt(radius);
+        }
+        
         const response = await fetch('/pharmacies/search-by-city', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
             },
-            body: JSON.stringify({ city: city })
+            body: JSON.stringify(requestData)
         });
+        
+        // Vérifier si la réponse est OK
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Erreur HTTP:', response.status, errorText);
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
         
         const data = await response.json();
         
         if (data.success) {
-            displayPharmacies(data.pharmacies);
-            updateNearbyStats(data.pharmacies.length);
+            // Afficher les pharmacies et obtenir le nombre de pharmacies affichées sur la carte
+            const displayedCount = displayPharmacies(data.pharmacies);
+            updateNearbyStats(displayedCount);
+            updateFoundPharmaciesCount(data.pharmacies.length);
+            
+            // Afficher un message si aucune pharmacie n'est trouvée
+            if (data.pharmacies.length === 0) {
+                alert(`Aucune pharmacie trouvée à ${city}`);
+            } else if (displayedCount === 0 && data.pharmacies.length > 0) {
+                // Si des pharmacies sont trouvées mais aucune n'a de coordonnées valides
+                alert(`${data.pharmacies.length} pharmacie(s) trouvée(s) à ${city}, mais aucune n'a de coordonnées valides pour l'affichage sur la carte.`);
+            } else {
+                // Afficher un message de succès discret
+                console.log(`${data.pharmacies.length} pharmacie(s) trouvée(s) à ${city}, ${displayedCount} affichée(s) sur la carte`);
+            }
+        } else {
+            const errorMessage = data.message || 'Erreur lors de la recherche';
+            console.error('Erreur de recherche:', errorMessage);
+            alert(errorMessage);
         }
     } catch (error) {
         console.error('Erreur lors de la recherche par ville:', error);
+        console.error('Détails de l\'erreur:', error.message);
+        alert('Une erreur est survenue lors de la recherche. Veuillez vérifier la console pour plus de détails.');
+    } finally {
+        // Réactiver le bouton et masquer le modal
+        searchBtn.disabled = false;
+        searchBtn.innerHTML = originalText;
+        hideLoadingModal();
     }
 }
 
@@ -308,10 +570,32 @@ function updateNearbyStats(nearby) {
     document.getElementById('nearby-pharmacies').textContent = nearby;
 }
 
+function updateFoundPharmaciesCount(count) {
+    const countElement = document.getElementById('found-pharmacies-count');
+    if (countElement) {
+        countElement.textContent = count;
+        // Ajouter une animation pour attirer l'attention
+        countElement.classList.add('animate-pulse');
+        setTimeout(() => {
+            countElement.classList.remove('animate-pulse');
+        }, 1000);
+    }
+}
+
 // Événements
 document.getElementById('radius-select').addEventListener('change', function() {
     if (currentLocation) {
+        // Rechercher automatiquement les pharmacies à proximité avec le nouveau rayon
         searchNearbyPharmacies();
+    } else {
+        // Si on a une recherche par ville active, relancer la recherche avec le nouveau rayon
+        const city = document.getElementById('city-search').value.trim();
+        if (city) {
+            // Si on a une position, l'utiliser pour améliorer la recherche
+            if (currentLocation) {
+                searchByCity();
+            }
+        }
     }
 });
 

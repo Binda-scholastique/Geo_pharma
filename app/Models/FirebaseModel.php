@@ -152,6 +152,12 @@ abstract class FirebaseModel
                 $attributes[$key] = $value;
             }
         }
+        
+        // S'assurer que l'ID est toujours inclus
+        if (isset($this->attributes['id']) && !isset($attributes['id'])) {
+            $attributes['id'] = $this->attributes['id'];
+        }
+        
         return $attributes;
     }
 

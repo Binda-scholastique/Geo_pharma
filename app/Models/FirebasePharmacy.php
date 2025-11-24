@@ -105,7 +105,7 @@ class FirebasePharmacy extends FirebaseModel
     /**
      * Calculer la distance entre deux points
      */
-    protected static function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    public static function calculateDistance($lat1, $lon1, $lat2, $lon2)
     {
         $earthRadius = 6371; // Rayon de la Terre en km
         
