@@ -114,6 +114,22 @@
     </div>
 </div>
 
+<!-- Notification Toast -->
+<div id="toast-notification" class="fixed top-4 right-4 z-50 hidden" style="z-index: 10000;">
+    <div id="toast-content" class="bg-white rounded-lg shadow-2xl p-4 min-w-80 max-w-md border-l-4 flex items-start space-x-3 animate-slide-in">
+        <div id="toast-icon" class="flex-shrink-0 mt-1">
+            <i class="fas fa-info-circle text-xl"></i>
+        </div>
+        <div class="flex-1">
+            <h4 id="toast-title" class="font-semibold text-gray-800 mb-1"></h4>
+            <p id="toast-message" class="text-sm text-gray-600"></p>
+        </div>
+        <button onclick="hideToast()" class="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
 <!-- Loading Modal -->
 <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden" style="z-index: 9999;">
     <div class="flex items-center justify-center min-h-screen p-4">
@@ -147,6 +163,25 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    @keyframes slide-in {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .animate-slide-in {
+        animation: slide-in 0.3s ease-out;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>
@@ -441,18 +476,20 @@ async function searchNearbyPharmacies() {
             updateFoundPharmaciesCount(data.pharmacies.length);
             
             if (data.pharmacies.length === 0) {
-                alert(`Aucune pharmacie trouvée dans un rayon de ${radius} km`);
+                showToast(`Aucune pharmacie trouvée dans un rayon de ${radius} km`, 'warning', 'Recherche terminée');
             } else if (displayedCount === 0 && data.pharmacies.length > 0) {
-                alert(`${data.pharmacies.length} pharmacie(s) trouvée(s), mais aucune n'a de coordonnées valides pour l'affichage sur la carte.`);
+                showToast(`${data.pharmacies.length} pharmacie(s) trouvée(s), mais aucune n'a de coordonnées valides pour l'affichage sur la carte.`, 'warning', 'Attention');
+            } else {
+                showToast(`${data.pharmacies.length} pharmacie(s) trouvée(s) dans un rayon de ${radius} km`, 'success', 'Recherche réussie');
             }
         } else {
             const errorMessage = data.message || 'Erreur lors de la recherche';
             console.error('Erreur de recherche:', errorMessage);
-            alert(errorMessage);
+            showToast(errorMessage, 'error', 'Erreur');
         }
     } catch (error) {
         console.error('Erreur lors de la recherche:', error);
-        alert('Une erreur est survenue lors de la recherche. Veuillez réessayer.');
+        showToast('Une erreur est survenue lors de la recherche. Veuillez réessayer.', 'error', 'Erreur');
     } finally {
         hideLoadingModal();
     }
@@ -469,12 +506,67 @@ function hideLoadingModal() {
     document.getElementById('loading-modal').classList.add('hidden');
 }
 
+// Afficher une notification toast
+function showToast(message, type = 'info', title = '') {
+    const toast = document.getElementById('toast-notification');
+    const toastContent = document.getElementById('toast-content');
+    const toastIcon = document.getElementById('toast-icon');
+    const toastTitle = document.getElementById('toast-title');
+    const toastMessage = document.getElementById('toast-message');
+    
+    // Définir les styles selon le type
+    const styles = {
+        success: {
+            borderColor: 'border-green-500',
+            icon: 'fas fa-check-circle text-green-500',
+            bgIcon: 'bg-green-100'
+        },
+        error: {
+            borderColor: 'border-red-500',
+            icon: 'fas fa-exclamation-circle text-red-500',
+            bgIcon: 'bg-red-100'
+        },
+        warning: {
+            borderColor: 'border-yellow-500',
+            icon: 'fas fa-exclamation-triangle text-yellow-500',
+            bgIcon: 'bg-yellow-100'
+        },
+        info: {
+            borderColor: 'border-blue-500',
+            icon: 'fas fa-info-circle text-blue-500',
+            bgIcon: 'bg-blue-100'
+        }
+    };
+    
+    const style = styles[type] || styles.info;
+    
+    // Appliquer les styles
+    toastContent.className = `bg-white rounded-lg shadow-2xl p-4 min-w-80 max-w-md border-l-4 flex items-start space-x-3 animate-slide-in ${style.borderColor}`;
+    toastIcon.innerHTML = `<i class="${style.icon} text-xl"></i>`;
+    toastTitle.textContent = title || (type === 'success' ? 'Succès' : type === 'error' ? 'Erreur' : type === 'warning' ? 'Attention' : 'Information');
+    toastMessage.textContent = message;
+    
+    // Afficher la notification
+    toast.classList.remove('hidden');
+    
+    // Masquer automatiquement après 5 secondes
+    setTimeout(() => {
+        hideToast();
+    }, 5000);
+}
+
+// Masquer la notification toast
+function hideToast() {
+    const toast = document.getElementById('toast-notification');
+    toast.classList.add('hidden');
+}
+
 // Rechercher par ville
 async function searchByCity() {
     const city = document.getElementById('city-search').value.trim();
     
     if (!city) {
-        alert('Veuillez entrer une ville');
+        showToast('Veuillez entrer une ville', 'warning', 'Champ requis');
         return;
     }
     
@@ -525,23 +617,23 @@ async function searchByCity() {
             
             // Afficher un message si aucune pharmacie n'est trouvée
             if (data.pharmacies.length === 0) {
-                alert(`Aucune pharmacie trouvée à ${city}`);
+                showToast(`Aucune pharmacie trouvée à ${city}`, 'warning', 'Recherche terminée');
             } else if (displayedCount === 0 && data.pharmacies.length > 0) {
                 // Si des pharmacies sont trouvées mais aucune n'a de coordonnées valides
-                alert(`${data.pharmacies.length} pharmacie(s) trouvée(s) à ${city}, mais aucune n'a de coordonnées valides pour l'affichage sur la carte.`);
+                showToast(`${data.pharmacies.length} pharmacie(s) trouvée(s) à ${city}, mais aucune n'a de coordonnées valides pour l'affichage sur la carte.`, 'warning', 'Attention');
             } else {
                 // Afficher un message de succès discret
-                console.log(`${data.pharmacies.length} pharmacie(s) trouvée(s) à ${city}, ${displayedCount} affichée(s) sur la carte`);
+                showToast(`${data.pharmacies.length} pharmacie(s) trouvée(s) à ${city}, ${displayedCount} affichée(s) sur la carte`, 'success', 'Recherche réussie');
             }
         } else {
             const errorMessage = data.message || 'Erreur lors de la recherche';
             console.error('Erreur de recherche:', errorMessage);
-            alert(errorMessage);
+            showToast(errorMessage, 'error', 'Erreur');
         }
     } catch (error) {
         console.error('Erreur lors de la recherche par ville:', error);
         console.error('Détails de l\'erreur:', error.message);
-        alert('Une erreur est survenue lors de la recherche. Veuillez vérifier la console pour plus de détails.');
+        showToast('Une erreur est survenue lors de la recherche. Veuillez vérifier la console pour plus de détails.', 'error', 'Erreur');
     } finally {
         // Réactiver le bouton et masquer le modal
         searchBtn.disabled = false;
